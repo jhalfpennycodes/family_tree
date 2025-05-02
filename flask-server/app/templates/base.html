@@ -1,0 +1,126 @@
+<!-- base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Family Tree</title>
+        <!-- Include Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link ... href="{{ url_for('static', filename='base.css') }}" />
+        <style>
+            body {
+                background-color: #f8f9fa; /* Light grey background */
+                font-family: Arial, sans-serif;
+            }
+            .navbar {
+                background-color: #343a40; /* Dark navbar background */
+            }
+            .navbar-brand {
+                color: #fff; /* White color for navbar brand */
+                font-weight: bold;
+            }
+            .container {
+                margin-top: 50px; /* Add space between navbar and content */
+            }
+            .add-options {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 9999;
+            }
+            .add-options-btn {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background-color: #007bff; /* Primary color for bubble */
+                color: #fff;
+                font-size: 24px;
+                text-align: center;
+                line-height: 50px;
+                cursor: pointer;
+                transition: transform 0.3s ease;
+            }
+            .add-options-btn:hover {
+                transform: scale(1.1); /* Scale up on hover */
+            }
+            .add-options-menu {
+                display: none;
+                position: fixed;
+                top: 90px;
+                left: 20px;
+                z-index: 9998;
+                background-color: #fff;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            }
+            .add-options-menu a {
+                display: block;
+                color: #333;
+                padding: 5px 0;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+            .add-options-menu a:hover {
+                background-color: #f8f9fa; /* Light grey background on hover */
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">Family Tree A</a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="add-options">
+                <div class="add-options-btn" onclick="toggleAddOptions()">+</div>
+                <div class="add-options-menu" id="addOptionsMenu">
+                    <a href="{{url_for('list_people')}}">List people</a>
+                    <a href="{{url_for('add_person')}}">Add Person</a>
+                </div>
+            </div>
+            <h2>Welcome to Family Tree App</h2>
+            <!-- Your content goes here -->
+        </div>
+    
+        <!-- Include jQuery -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            function toggleAddOptions() {
+                var menu = document.getElementById("addOptionsMenu");
+                menu.style.display = menu.style.display === "block" ? "none" : "block";
+            }
+    
+            // Add event listener to hide options when clicking outside the bubble
+            $(document).mouseup(function(e) {
+                var container = $("#addOptionsContainer");
+    
+                // If the target of the click isn't the container nor a descendant of the container
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $("#addOptionsMenu").hide();
+                }
+            });
+        </script>
+        <!-- Include Bootstrap JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            function toggleAddOptions() {
+                var menu = document.getElementById("addOptionsMenu");
+                menu.style.display = menu.style.display === "block" ? "none" : "block";
+            }
+        </script>
+            <main>
+                <!-- Main content of the page will be inserted here -->
+                {% block content %}{% endblock %}
+            </main>
+    </body>
+    <footer>
+        <!-- Footer content (e.g., copyright information) -->
+        <p>&copy; 2024 My Website. All rights reserved.</p>
+    </footer>
+
+</html>
