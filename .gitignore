@@ -1,0 +1,40 @@
+# === Python / Flask ===
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.log
+.env
+venv/
+.venv/
+env/
+ENV/
+
+# === Flask specific ===
+instance/
+*.sqlite3
+
+# === React / Node ===
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.DS_Store
+
+# === General ===
+*.swp
+*.swo
+*.bak
+*.tmp
+*.idea/
+*.vscode/
+.DS_Store
+Thumbs.db
+
+# === OS Specific ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

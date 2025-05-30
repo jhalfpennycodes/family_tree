@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Home | My Website{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="utf-8" />
+    <title>Family Graph</title>
+    <!-- Include external CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styling.css') }}">
+    <!-- Include D3.js library -->
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+    <!-- Graph container -->
+    <div id="graph"></div>
+
+    <!-- Include custom JavaScript -->
+    <script src="{{url_for('static', filename='tree.js')}}"></script>
+</body>
+</html>
+
+{% endblock content %}

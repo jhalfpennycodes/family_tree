@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Child select{% endblock %}
+
+{% block content %}
+
+<body>
+    <form method="POST", aciton="/child">
+
+        {{ form.choices }}
+        <button>Submit</button>
+    </form>
+</body>
+
+{% endblock %}
