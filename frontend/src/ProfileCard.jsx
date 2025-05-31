@@ -62,11 +62,20 @@ export default function ProfileCard(props) {
           </Link>
         </MenuItem>
       </Menu>
-      <Card sx={{ maxWidth: 300, borderRadius: 4 }}>
+      <Card
+        sx={{
+          width: 250,
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: 1,
+        }}
+      >
         <CardHeader
           avatar={
             <Avatar
               sx={{
+                width: 50,
+                height: 50,
                 cursor: "pointer",
                 transition: "all 0.3s ease",
                 "&:hover": {
@@ -96,15 +105,14 @@ export default function ProfileCard(props) {
           name={props.name}
           subheader={props.name}
         />
-        <CardMedia component="img" image={props.imgId} alt={props.name} />
         <CardContent>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
             <b>Born:</b> {props.dob}
           </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
             <b>Father:</b> {props.father}
           </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
             <b>Mother:</b> {props.mother}
           </Typography>
         </CardContent>

@@ -6,10 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "./Avatar.css";
 import { img } from "framer-motion/client";
 
-const imgId =
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Portrait_of_J._D._Rockefeller.jpg/800px-Portrait_of_J._D._Rockefeller.jpg";
-
-export default function Avatar() {
+export default function Avatar(props) {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -18,28 +15,41 @@ export default function Avatar() {
 
   return (
     <div>
-      <motion.div>
-        {!expanded && (
-          <motion.img
-            className="avatar-img"
-            onClick={toggleExpanded}
-            src={imgId}
-            alt="Avatar"
-          />
-        )}
+      <AnimatePresence mode="wait">
+        <motion.div
+          layout
+          transition={{
+            default: { type: "spring" },
+            opacity: { ease: "linear" },
+          }}
+        >
+          {!expanded && (
+            <motion.img
+              whileHover={{
+                scale: 1.3,
+                transition: { duration: 0.5 },
+              }}
+              whileTap={{ scale: 1 }}
+              className="avatar-img"
+              onClick={toggleExpanded}
+              src={props.imgUrl}
+              alt={props.name}
+            />
+          )}
 
-        {expanded && (
-          <ProfileCard
-            imgId={imgId}
-            name="D. Rockerfeller"
-            dob="12/1/199"
-            father="QB Rockerfeller"
-            mother="Seline Gomez"
-            lifeDescription="NOT a whole lot"
-            onCollapse={toggleExpanded}
-          />
-        )}
-      </motion.div>
+          {expanded && (
+            <ProfileCard
+              imgId={props.imgUrl}
+              name={props.name}
+              dob={props.dob}
+              father={props.father}
+              mother={props.mother}
+              lifeDescription={props.lifeDescription}
+              onCollapse={toggleExpanded}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
