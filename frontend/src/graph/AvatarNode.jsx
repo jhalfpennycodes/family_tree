@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "@xyflow/react";
-import Avatar from "./Avatar"; // your avatar UI component
-import datas from "./rockefellerFamily.json";
+import Avatar from "../common/Avatar"; // your avatar UI component
+import datas from "../rockefellerFamily.json";
 
 const AvatarNode = ({ data }) => {
   return (

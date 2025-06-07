@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Stack from "@mui/material/Stack";
-import ProfileCard from "./ProfileCard";
+import ProfileCard from "../profile/ProfileCard";
 import { motion, AnimatePresence } from "framer-motion";
 import "./Avatar.css";
 import { img } from "framer-motion/client";
