@@ -17,12 +17,13 @@ const AvatarNode = ({ data }) => {
     >
       <Avatar
         id={data.id}
-        imgUrl={data.imgUrl}
-        name={data.name}
+        avatar_img={data.avatar_img}
+        name={`${data.first_name} ${data.last_name}`}
         dob={data.dob}
+        gender={data.gender}
         father={data.father}
         mother={data.mother}
-        lifeDescription={data.lifeDescription}
+        profession={data.profession}
       ></Avatar>
       <Handle
         type="source"

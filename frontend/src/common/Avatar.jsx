@@ -32,19 +32,21 @@ export default function Avatar(props) {
               whileTap={{ scale: 1 }}
               className="avatar-img"
               onClick={toggleExpanded}
-              src={props.imgUrl}
+              src={props.avatar_img}
               alt={props.name}
             />
           )}
 
           {expanded && (
             <ProfileCard
-              imgId={props.imgUrl}
+              id={props.id}
+              avatar_img={props.avatar_img}
               name={props.name}
+              gender={props.gender}
               dob={props.dob}
               father={props.father}
               mother={props.mother}
-              lifeDescription={props.lifeDescription}
+              profession={props.mother}
               onCollapse={toggleExpanded}
             />
           )}

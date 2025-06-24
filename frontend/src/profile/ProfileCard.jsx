@@ -86,7 +86,7 @@ export default function ProfileCard(props) {
               }}
             >
               <img
-                src={props.imgId}
+                src={props.avatar_img}
                 alt={props.name}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
@@ -110,10 +110,7 @@ export default function ProfileCard(props) {
             <b>Born:</b> {props.dob}
           </Typography>
           <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
-            <b>Father:</b> {props.father}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
-            <b>Mother:</b> {props.mother}
+            <b>Gender:</b> {props.gender}
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
@@ -129,10 +126,25 @@ export default function ProfileCard(props) {
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
             <Typography sx={{ color: "text.secondary" }}>
-              <b>Life description:</b>
+              <b>Other information:</b>
             </Typography>
-            <Typography sx={{ marginBottom: 1, color: "text.secondary" }}>
-              {props.lifeDescription}
+            <Typography
+              variant="body2"
+              sx={{ mb: 0.5, color: "text.secondary" }}
+            >
+              <b>Mother:</b> {props.mother}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ mb: 0.5, color: "text.secondary" }}
+            >
+              <b>Father:</b> {props.father}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ mb: 0.5, color: "text.secondary" }}
+            >
+              <b>Profession:</b> {props.profession}
             </Typography>
           </CardContent>
         </Collapse>

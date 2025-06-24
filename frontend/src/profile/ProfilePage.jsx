@@ -46,6 +46,34 @@ function ProfileField({ label, value, editable }) {
   );
 }
 
+function ProfileSelectField({ label, value, editable }) {
+  return (
+    <Box
+      sx={{
+        mb: 2,
+        pl: 3,
+        borderLeft: "4px solid #ccc",
+        backgroundColor: "#f9f9f9",
+        borderRadius: 1,
+        py: 1,
+      }}
+    >
+      <Typography variant="subtitle" color="text.secondary" mb={2}>
+        {label}
+      </Typography>
+      {editable ? (
+        <select name="selectMother">
+          {rockerfellers.map((rockerfeller) => (
+            <option key={rockerfeller.id}>{rockerfeller.name} </option>
+          ))}
+        </select>
+      ) : (
+        <Typography variant="body1">{value}</Typography>
+      )}
+    </Box>
+  );
+}
+
 function LifeDescriptionSection({ value, editable }) {
   const sections = [
     {
@@ -221,9 +249,9 @@ function ProfilePage(props) {
             value={person.born || "1 Jan 1900"}
             editable={editable}
           />
-          <ProfileField
+          <ProfileSelectField
             label="Mother"
-            value={person.parents[1] || "Mary Smith"}
+            value={person.parents[0]}
             editable={editable}
           />
           <ProfileField

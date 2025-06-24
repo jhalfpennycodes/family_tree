@@ -4,27 +4,9 @@ import "./index.css";
 import Tree from "./graph/Tree";
 import ProfilePage from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
+import AddProfileForm from "./profile/AddProfile";
 import Navbar from "./common/Navbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <div>Hello world!</div>,
-  },
-  {
-    path: "/tree",
-    element: <Tree />,
-  },
-  {
-    path: "/Profile",
-    element: <ProfilePage />,
-  },
-  {
-    path: "/list",
-    element: <ProfileList></ProfileList>,
-  },
-]);
 
 export default function App() {
   return (
@@ -36,6 +18,7 @@ export default function App() {
           <Route path="/tree" element={<Tree />} />
           <Route path="/Profile" element={<ProfilePage />} />
           <Route path="/list" element={<ProfileList />} />
+          <Route path="/addProfile" element={<AddProfileForm />}></Route>
         </Routes>
       </BrowserRouter>
     </React.StrictMode>

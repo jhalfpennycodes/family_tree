@@ -1,4 +1,3 @@
-import { initialEdges, newNodes } from "../initialElements";
 import ELK from "elkjs/lib/elk.bundled.js";
 import React, { useState, useCallback, useLayoutEffect } from "react";
 import {
@@ -8,22 +7,16 @@ import {
   MiniMap,
   ReactFlowProvider,
   addEdge,
-  Panel,
   useNodesState,
   useEdgesState,
   useReactFlow,
 } from "@xyflow/react";
-
+import axios from "axios";
 import "@xyflow/react/dist/style.css";
 import AvatarNode from "./AvatarNode";
-
+import { initialEdges } from "../initialElements";
 const elk = new ELK();
 
-// Elk has a *huge* amount of options to configure. To see everything you can
-// tweak check out:
-//
-// - https://www.eclipse.org/elk/reference/algorithms.html
-// - https://www.eclipse.org/elk/reference/options.html
 const elkOptions = {
   "elk.algorithm": "layered",
   "elk.layered.spacing.nodeNodeBetweenLayers": "150",
@@ -69,6 +62,23 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 const nodeTypes = { avatar: AvatarNode };
 
 function LayoutFlow() {
+  // Use state to store the fetched data
+  const [initialData, setInitialData] = useState({ nodes: [], edges: [] });
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  const fetchAPI = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:5000/api/tree/1");
+      const fetchedNodes = response.data[0].nodes;
+      const fetchedEdges = initialEdges;
+      // Store in state instead of regular variables
+      setInitialData({ nodes: fetchedNodes, edges: fetchedEdges });
+      setDataLoaded(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
@@ -77,10 +87,12 @@ function LayoutFlow() {
     (params) => setEdges((eds) => addEdge(params, eds)),
     []
   );
+
   const onLayout = useCallback(
     ({ direction, useInitialNodes = false }) => {
       const opts = { "elk.direction": direction, ...elkOptions };
-      const ns = useInitialNodes ? newNodes : nodes;
+      // Use the state data instead of undefined variables
+      const ns = useInitialNodes ? initialData.nodes : nodes;
       const es = useInitialNodes ? initialEdges : edges;
 
       getLayoutedElements(ns, es, opts).then(
@@ -94,13 +106,21 @@ function LayoutFlow() {
     [nodes, edges]
   );
 
-  // Calculate the initial layout on mount.
-  useLayoutEffect(() => {
-    onLayout({ direction: "DOWN", useInitialNodes: true });
+  // Fetch data on mount
+  React.useEffect(() => {
+    fetchAPI();
   }, []);
 
-  const [theme, setTheme] = useCallback("light");
-  function handleThemChange(event) {
+  // Calculate the initial layout when data is loaded
+  useLayoutEffect(() => {
+    if (dataLoaded) {
+      onLayout({ direction: "DOWN", useInitialNodes: true });
+    }
+  }, [dataLoaded, onLayout]);
+
+  const [theme, setTheme] = useState("light"); // Fix: use useState instead of useCallback
+
+  function handleThemeChange(event) {
     let choice = event.target.value;
     console.log(choice);
     setTheme(choice);

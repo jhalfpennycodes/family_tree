@@ -11,7 +11,6 @@
     "imgUrl": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcT5I0q-U-0ddYirWJyEeYJNLn-Og-jxKzw5oLDa6FikMvt6m8QD9ou_xusZC-xJxuaDZ0QonI_5drpU4Ts",
     "birthLocation": "Richford, New York, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["William Rockefeller", "Mary Rockefeller"],
     "profession": "Industrialist"
   },
   {
@@ -26,7 +25,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Laura_Spelman_Rockefeller_-_Bain_Collection.png",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["Harriet Spelman", "William Spelman"],
     "profession": "Philanthropist"
   },
   {
@@ -41,7 +39,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Rockefeller%2C_Bessie_1874_-_DPLA_-_21ec44e7556cac78f7c8890dcc39c5e9.jpg/960px-Rockefeller%2C_Bessie_1874_-_DPLA_-_21ec44e7556cac78f7c8890dcc39c5e9.jpg?20220422224027",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["Alice Rockefeller", "Alta Rockefeller"],
     "profession": "Socialite"
   },
   {
@@ -56,7 +53,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Rockefeller%2C_Alice_-_DPLA_-_78bd49fe9fc3a9fe9429cbd53e0d30b0.jpg/1500px-Rockefeller%2C_Alice_-_DPLA_-_78bd49fe9fc3a9fe9429cbd53e0d30b0.jpg",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["Bessie Rockefeller", "Alta Rockefeller"],
     "profession": "Private"
   },
   {
@@ -71,7 +67,6 @@
     "imgUrl": "https://geneall.net/images/names/pes_277392.jpg",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["Bessie Rockefeller", "Alice Rockefeller"],
     "profession": "Philanthropist"
   },
   {
@@ -86,7 +81,6 @@
     "imgUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuYjd5CuVYR37TGd57sH7epeu5EEYyD6AmTg&s",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "Chicago, Illinois, USA",
-    "siblings": ["Bessie Rockefeller", "Alice Rockefeller", "Alta Rockefeller"],
     "profession": "Philanthropist"
   },
   {
@@ -101,12 +95,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/John_D._Rockefeller_Jr._cph.3a03736.jpg",
     "birthLocation": "Cleveland, Ohio, USA",
     "currentLocation": "New York, USA",
-    "siblings": [
-      "Bessie Rockefeller",
-      "Alice Rockefeller",
-      "Alta Rockefeller",
-      "Edith Rockefeller"
-    ],
     "profession": "Philanthropist"
   },
   {
@@ -121,7 +109,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Abby_Rockefeller_LCCN2014718060_%28cropped%29.jpg/1200px-Abby_Rockefeller_LCCN2014718060_%28cropped%29.jpg",
     "birthLocation": "New York, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["Florence Aldrich", "Mary Aldrich"],
     "profession": "Art Patron"
   },
   {
@@ -136,7 +123,7 @@
     "imgUrl": "https://rockarch.org/assets/img/05_marthabairdrockefeller.png",
     "birthLocation": "Philadelphia, Pennsylvania, USA",
     "currentLocation": "New York, USA",
-    "siblings": ["William Baird Jr.", "Helen Baird"],
+
     "profession": "Concert Pianist"
   },
   {
@@ -148,16 +135,9 @@
     "spouse": "unknown",
     "dob": "1903-11-09",
     "lifeDescription": "Daughter of John D. Rockefeller Jr., known for her environmental activism (...)",
-    "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Abby_Rockefeller_LCCN2014718060_%28cropped%29.jpg",
+    "imgUrl": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.findagrave.com%2Fmemorial%2F190163937%2Fabigail_rockefeller-o%2527neill&psig=AOvVaw1c7eyhMi8818gHdsBjk6bs&ust=1749658090332000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCPD53bqe540DFQAAAAAdAAAAABAE",
     "birthLocation": "New York, USA",
     "currentLocation": "New York, USA",
-    "siblings": [
-      "John D. Rockefeller III",
-      "Nelson A. Rockefeller",
-      "Laurance S. Rockefeller",
-      "Winthrop Rockefeller",
-      "David Rockefeller"
-    ],
     "profession": "Environmental Activist"
   },
   {
@@ -169,16 +149,9 @@
     "spouse": "Blanchette Ferry Hooker",
     "dob": "1906-03-21",
     "lifeDescription": "Philanthropist focused on Asian-American cultural exchange (...)",
-    "imgUrl": "https://asiasociety.org/sites/default/files/styles/1200w/public/1/160407_JDR-3rd.jpg",
+    "imgUrl": "https://rockarch.org/assets/img/07_johndrockefeller3rd.png",
     "birthLocation": "New York, USA",
     "currentLocation": "New York, USA",
-    "siblings": [
-      "Abby Rockefeller",
-      "Nelson A. Rockefeller",
-      "Laurance S. Rockefeller",
-      "Winthrop Rockefeller",
-      "David Rockefeller"
-    ],
     "profession": "Philanthropist"
   },
   {
@@ -193,13 +166,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/Nelson_Rockefeller.jpg",
     "birthLocation": "Bar Harbor, Maine, USA",
     "currentLocation": "New York, USA",
-    "siblings": [
-      "Abby Rockefeller",
-      "John D. Rockefeller III",
-      "Laurance S. Rockefeller",
-      "Winthrop Rockefeller",
-      "David Rockefeller"
-    ],
     "profession": "Politician"
   },
   {
@@ -214,13 +180,6 @@
     "imgUrl": "https://rockarch.org/assets/img/09_laurancesrockefeller.png",
     "birthLocation": "New York, USA",
     "currentLocation": "Wyoming, USA",
-    "siblings": [
-      "Abby Rockefeller",
-      "John D. Rockefeller III",
-      "Nelson A. Rockefeller",
-      "Winthrop Rockefeller",
-      "David Rockefeller"
-    ],
     "profession": "Venture Capitalist"
   },
   {
@@ -235,13 +194,6 @@
     "imgUrl": "https://rockarch.org/assets/img/10_winthroprockefeller.png",
     "birthLocation": "New York, USA",
     "currentLocation": "Arkansas, USA",
-    "siblings": [
-      "Abby Rockefeller",
-      "John D. Rockefeller III",
-      "Nelson A. Rockefeller",
-      "Laurance S. Rockefeller",
-      "David Rockefeller"
-    ],
     "profession": "Politician"
   },
   {
@@ -256,13 +208,6 @@
     "imgUrl": "https://upload.wikimedia.org/wikipedia/commons/1/17/David_Rockefeller%2C_1984_%28cropped%29.jpg",
     "birthLocation": "New York, USA",
     "currentLocation": "New York, USA",
-    "siblings": [
-      "Abby Rockefeller",
-      "John D. Rockefeller III",
-      "Nelson A. Rockefeller",
-      "Laurance S. Rockefeller",
-      "Winthrop Rockefeller"
-    ],
     "profession": "Banker"
   }
 ]
