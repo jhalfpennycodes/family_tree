@@ -1,9 +1,16 @@
 import React from "react";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useUpdateNodeInternals } from "@xyflow/react";
 import Avatar from "../common/Avatar"; // your avatar UI component
 import datas from "../rockefellerFamily.json";
+import { useState, useCallback, useEffect } from "react";
 
 const AvatarNode = ({ data }) => {
+  const updateNodeInternals = useUpdateNodeInternals();
+
+  useEffect(() => {
+    updateNodeInternals(data.id);
+  }, [data.id, updateNodeInternals]);
+
   return (
     <div
       style={{

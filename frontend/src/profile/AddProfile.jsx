@@ -16,6 +16,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { FormControl } from "@mui/material";
 import { OutlinedInput } from "@mui/material";
+import dayjs from "dayjs";
 
 function InputField({ value, onChange, label, boxLabel }) {
   return (
@@ -101,6 +102,8 @@ function DateField({ value, onChange }) {
         <DemoContainer components={["DatePicker"]}>
           <DatePicker
             sx={{ width: "25%" }}
+            isRequired
+            format="YYYY-MM-DD"
             label="Born"
             value={value}
             onChange={(newValue) => onChange(newValue)}
@@ -177,12 +180,17 @@ function SelectField({ label, value, onChange, inputValue, boxLabel }) {
           sx={{ width: "25%", mt: 1 }}
           displayEmpty
           renderValue={(selected) => {
+            if (selectedId === 0) {
+              console.log("HIT");
+              return <em>Unknown</em>;
+            }
+            console.log(selected);
             const person = inputValue.find((p) => p.id === selected);
-            return person ? person.name : <em>Select a person</em>;
+            return person ? person.name : <em>Unkown</em>;
           }}
         >
-          <MenuItem value="">
-            <em>None</em>
+          <MenuItem value="" key={0}>
+            <em>Unknown</em>
           </MenuItem>
           {inputValue.map((person, index) => (
             <MenuItem key={index} value={person.id}>
@@ -269,7 +277,21 @@ function AddProfileForm(props) {
     if (!formData.dob) {
       alert("Please select a date of birth");
     }
-    if (formData.gender && formData.dob) {
+    if (
+      formData.first_name &&
+      formData.last_name &&
+      formData.gender &&
+      formData.dob
+    ) {
+      console.log("About to send POST request...");
+      fetch("http://127.0.0.1:5000/familyTree/family/1", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
       console.log("Form as JSON object:", formData);
       console.log("As JSON string:", JSON.stringify(formData));
     }

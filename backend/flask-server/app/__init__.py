@@ -8,11 +8,10 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Try this CORS configuration instead
 CORS(app, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
-        "methods": ["GET", "POST", "PUT", "DELETE"],
+    r"/*": {
+        "origins": app.config['CORS_ORIGINS'],
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
