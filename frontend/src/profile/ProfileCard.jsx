@@ -113,7 +113,7 @@ export default function ProfileCard(props) {
             <b>Gender:</b> {props.gender}
           </Typography>
         </CardContent>
-        <CardActions disableSpacing>
+        <CardActions>
           <ExpandMore
             expand={expanded}
             onClick={handleExpandClick}

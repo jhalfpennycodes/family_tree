@@ -44,9 +44,9 @@ export default function Avatar(props) {
               name={props.name}
               gender={props.gender}
               dob={props.dob}
-              father={props.father}
-              mother={props.mother}
-              profession={props.mother}
+              father={props.father ? props.father : "Unknown"}
+              mother={props.mother ? props.mother : "Unknown"}
+              profession={props.profession}
               onCollapse={toggleExpanded}
             />
           )}

@@ -9,6 +9,7 @@ const AvatarNode = ({ data }) => {
 
   useEffect(() => {
     updateNodeInternals(data.id);
+    console.log(data);
   }, [data.id, updateNodeInternals]);
 
   return (
