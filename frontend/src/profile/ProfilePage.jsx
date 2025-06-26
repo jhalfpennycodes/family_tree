@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Avatar,
   Box,
@@ -8,7 +9,6 @@ import {
   ImageListItem,
   Button,
 } from "@mui/material";
-import rockerfellers from "../rockefellerFamily.json";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -16,8 +16,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
+import CircularProgress from "@mui/material/CircularProgress";
 
-function ProfileField({ label, value, editable }) {
+function ProfileField({ label, value, editable, id }) {
   return (
     <Box
       sx={{
@@ -140,9 +141,13 @@ function LifeDescriptionSection({ value, editable }) {
   );
 }
 
-function ProfilePage(props) {
+function ProfilePage({ profileData }) {
+  if (!profileData) {
+    return <div>No Data</div>;
+  }
+  console.log("Data entering component ", profileData);
+  console.log("Name", profileData.first_name);
   const [editable, setEditable] = useState(false);
-  const person = rockerfellers[0];
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -169,7 +174,7 @@ function ProfilePage(props) {
       {/* Avatar and Name on top */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
         <Avatar
-          src={person.imgUrl}
+          src={profileData.avatar_img}
           alt="Profile"
           sx={{
             width: 150,
@@ -180,7 +185,7 @@ function ProfilePage(props) {
           }}
         />
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-          {person.name}
+          {profileData.first_name} {profileData.last_name}
         </Typography>
         {editable ? (
           <Button
@@ -246,47 +251,74 @@ function ProfilePage(props) {
         <Box sx={{ flex: 1, minWidth: 300 }}>
           <ProfileField
             label="Born"
-            value={person.born || "1 Jan 1900"}
+            value={profileData.dob ? profileData.dob : "Unable to load"}
             editable={editable}
           />
           <ProfileSelectField
             label="Mother"
-            value={person.parents[0]}
+            value={profileData.mother ? profileData.mother : "Unknown"}
             editable={editable}
           />
           <ProfileField
             label="Father"
-            value={person.parents[0] || "Richard Doe"}
+            value={profileData.father ? profileData.father : "Unknown"}
             editable={editable}
           />
-          <ProfileField
+
+          {profileData.spouses && profileData.spouses.length > 0 ? (
+            profileData.spouses.map((spouse) => (
+              <ProfileField
+                label="Spouse(s)"
+                value={`${spouse.first_name} ${spouse.last_name}`}
+                editable={editable}
+              />
+            ))
+          ) : (
+            <ProfileField
+              label="Spouse(s)"
+              value="No known spouses"
+              editable={editable}
+            />
+          )}
+          {profileData.children && profileData.children.length > 0 ? (
+            profileData.children.map((index, child) => (
+              <ProfileField
+                key={index}
+                label="Children"
+                value={`${child.first_name} ${child.last_name}`}
+                editable={editable}
+              />
+            ))
+          ) : (
+            <ProfileField
+              label="Spouse(s)"
+              value="No known chidlren"
+              editable={editable}
+            />
+          )}
+          {/* <ProfileField
             label="Spouse(s)"
-            value={person.siblings || "Mary Rockerfeller"}
+            value={profileData.siblings || "Mary Rockerfeller"}
             editable={editable}
           />
           <ProfileField
             label="Siblings"
-            value={person.siblings || "Anna Doe, Mark Doe"}
+            value={profileData.siblings[0] || "Anna Doe, Mark Doe"}
             editable={editable}
-          />
+          /> */}
           <ProfileField
             label="Birth Location"
-            value={person.birthLocation || "London, UK"}
-            editable={editable}
-          />
-          <ProfileField
-            label="Current location"
-            value={person.birthLocation || "London, UK"}
+            value={profileData.birth_location || "London, UK"}
             editable={editable}
           />
           <ProfileField
             label="Profession"
-            value={person.birthLocation || "Philanthropist"}
+            value={profileData.profession || "Philanthropist"}
             editable={editable}
           />
         </Box>
         {/* Dynamic wrapping photo album */}
-        <ImageList
+        {/* <ImageList
           cols={2}
           gap={4}
           sx={{
@@ -297,8 +329,8 @@ function ProfilePage(props) {
             maxHeight: 550,
             width: "100%",
           }}
-        >
-          {rockerfellers.map((item) => (
+        > */}
+        {/* {rockerfellers.map((item) => (
             <ImageListItem key={item.id} sx={{ borderRadius: 3, boxShadow: 3 }}>
               <img
                 src={item.imgUrl}
@@ -309,9 +341,9 @@ function ProfilePage(props) {
               />
             </ImageListItem>
           ))}
-        </ImageList>
+        </ImageList> */}
         <LifeDescriptionSection
-          value={person.lifeDescription}
+          value={profileData.lifeDescription}
           editable={editable}
         />
       </Box>
@@ -319,4 +351,48 @@ function ProfilePage(props) {
   );
 }
 
-export default ProfilePage;
+function ProfileLogic() {
+  const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5000/familyTree/profile/${id}`
+        );
+        const json = await response.json();
+        console.log("Initial data: ", json);
+        setProfileData(json);
+      } catch (error) {
+        console.error("API Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getProfile();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh", // full viewport height
+          width: "100vw", // full viewport width (optional)
+        }}
+      >
+        <CircularProgress></CircularProgress>
+      </Box>
+    );
+  }
+  if (!profileData) return <div>Error loading profile</div>;
+  console.log("Profile Data: ", profileData);
+  return <ProfilePage profileData={profileData[0]} />;
+}
+
+export default ProfileLogic;

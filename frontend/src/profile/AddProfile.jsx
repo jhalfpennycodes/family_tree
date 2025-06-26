@@ -358,7 +358,12 @@ function AddProfileForm(props) {
             value={formData.birth_location}
             onChange={(val) => handleChange("birth_location", val)}
           />
-          <InputField label="Profession" boxLabel="Enter profession" />
+          <InputField
+            label="Profession"
+            boxLabel="Enter profession"
+            value={formData.profession}
+            onChange={(val) => handleChange("profession", val)}
+          />
         </Box>
         <Box mb={2} sx={{ width: "100%" }}>
           <h2>Life Description</h2>

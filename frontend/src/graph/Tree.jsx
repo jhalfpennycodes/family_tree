@@ -18,6 +18,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import AvatarNode from "./AvatarNode";
 import { useEffect } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 const elk = new ELK();
 
@@ -123,9 +125,11 @@ const nodeTypes = { avatar: AvatarNode };
 
 function LayoutFlow() {
   const [isLoading, setLoading] = useState(true);
+  const [graphIsLoading, setGraphIsLoading] = useState(true);
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
+  const hasCalledFitView = useRef(false);
 
   const getTree = async () => {
     try {
@@ -165,19 +169,15 @@ function LayoutFlow() {
 
             setNodes(layoutedNodes);
             setEdges(layoutedEdges);
-
-            setTimeout(() => fitView(), 100);
           } else {
             console.error("Layout result is invalid:", layoutResult);
             setNodes(json[0].nodes);
             setEdges(json[0].edges);
-            setTimeout(() => fitView(), 100);
           }
         } catch (layoutError) {
           console.error("Layout error:", layoutError);
           setNodes(json[0].nodes);
           setEdges(json[0].edges);
-          setTimeout(() => fitView(), 100);
         }
       }
     } catch (error) {
@@ -187,25 +187,72 @@ function LayoutFlow() {
     }
   };
 
+  // Use onNodesChange to detect when all nodes are rendered
+  const handleNodesChange = useCallback(() => {
+    // Only fit view once after nodes are set and rendered
+    if (nodes.length > 0 && !hasCalledFitView.current && graphIsLoading) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          fitView({
+            duration: 800,
+          });
+          setGraphIsLoading(false);
+          hasCalledFitView.current = true;
+        }, 200);
+      });
+    }
+  }, [nodes.length, fitView, graphIsLoading]);
+
   useEffect(() => {
     getTree();
   }, []);
+
+  // Call handleNodesChange when nodes change
+  useEffect(() => {
+    handleNodesChange();
+  }, [nodes, handleNodesChange]);
 
   // Debug: Log current state
   console.log("Current render - Nodes:", nodes.length, "Edges:", edges.length);
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      fitView
-      style={{ backgroundColor: "#F7F9FB" }}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh", // full viewport height
+        width: "100vw", // full viewport width (optional)
+      }}
     >
-      <Controls />
-      <MiniMap />
-      <Background />
-    </ReactFlow>
+      {!graphIsLoading ? (
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          style={{ backgroundColor: "#F7F9FB" }}
+          panOnScroll={{ Free: "free" }}
+          panOnScrollSpeed={1}
+        >
+          <Controls position="top-right" showInteractive={false} />
+          <MiniMap />
+          <Background />
+        </ReactFlow>
+      ) : (
+        <Box
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            width: "100vw",
+          }}
+        >
+          <CircularProgress></CircularProgress>
+        </Box>
+      )}
+    </div>
   );
 }
 

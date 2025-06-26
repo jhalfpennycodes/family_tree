@@ -13,10 +13,14 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import Link from "@mui/material/Link";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Cancel";
+import Box from "@mui/material/Box";
+import { Link } from "react-router-dom";
+import ContactPageIcon from "@mui/icons-material/ContactPage";
+import { Icon } from "@mui/material";
+import PermContactCalendarRoundedIcon from "@mui/icons-material/PermContactCalendarRounded";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -72,31 +76,35 @@ export default function ProfileCard(props) {
       >
         <CardHeader
           avatar={
-            <Avatar
-              sx={{
-                width: 50,
-                height: 50,
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  backgroundColor: "primary.light",
-                  boxShadow: 5,
-                  transform: "scale(1.2)",
-                },
-              }}
-            >
-              <img
-                src={props.avatar_img}
-                alt={props.name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </Avatar>
+            <Link to={`/profile/${props.id}`}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: "primary.light",
+                    boxShadow: 5,
+                    transform: "scale(1.2)",
+                  },
+                }}
+              >
+                <img
+                  src={props.avatar_img}
+                  alt={props.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </Avatar>
+            </Link>
           }
           action={
             <React.Fragment>
-              <IconButton size="medium" onClick={handleClick}>
-                <MoreHorizIcon />
-              </IconButton>
+              <Link to={`/profile/${props.id}`}>
+                <IconButton>
+                  <ContactPageIcon sx={{ color: "action.active" }} />
+                </IconButton>
+              </Link>
               <IconButton>
                 <CancelIcon onClick={props.onCollapse}></CancelIcon>
               </IconButton>
@@ -105,24 +113,37 @@ export default function ProfileCard(props) {
           name={props.name}
           subheader={props.name}
         />
-        <CardContent>
-          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
-            <b>Born:</b> {props.dob}
+        <CardContent disableSpacing={true}>
+          <Typography variant="body2" sx={{ mb: 0.3, color: "text.secondary" }}>
+            <b>Mother:</b> {props.mother}
           </Typography>
-          <Typography variant="body2" sx={{ mb: 0.5, color: "text.secondary" }}>
-            <b>Gender:</b> {props.gender}
+          <Typography variant="body2" sx={{ mb: 0.3, color: "text.secondary" }}>
+            <b>Father:</b> {props.father}
           </Typography>
-        </CardContent>
-        <CardActions>
-          <ExpandMore
-            expand={expanded}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show more"
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
-            <ExpandMoreIcon />
-          </ExpandMore>
-        </CardActions>
+            <Typography
+              variant="body2"
+              sx={{ mb: 0.3, color: "text.secondary" }}
+            >
+              <b>Born:</b> {props.dob}
+            </Typography>
+            <ExpandMore
+              expand={expanded}
+              onClick={handleExpandClick}
+              aria-expanded={expanded}
+              aria-label="show more"
+              sx={{ ml: 1 }} // Optional spacing from the text
+            >
+              <ExpandMoreIcon />
+            </ExpandMore>
+          </Box>
+        </CardContent>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
             <Typography sx={{ color: "text.secondary" }}>
@@ -132,13 +153,7 @@ export default function ProfileCard(props) {
               variant="body2"
               sx={{ mb: 0.5, color: "text.secondary" }}
             >
-              <b>Mother:</b> {props.mother}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ mb: 0.5, color: "text.secondary" }}
-            >
-              <b>Father:</b> {props.father}
+              <b>Gender:</b> {props.gender}
             </Typography>
             <Typography
               variant="body2"

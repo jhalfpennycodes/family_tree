@@ -2,7 +2,7 @@ import * as React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Tree from "./graph/Tree";
-import ProfilePage from "./profile/ProfilePage";
+import ProfileLogic from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
 import AddProfileForm from "./profile/AddProfile";
 import Navbar from "./common/Navbar";
@@ -16,7 +16,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<div>Hello world!</div>} />
           <Route path="/tree" element={<Tree />} />
-          <Route path="/Profile" element={<ProfilePage />} />
+          <Route path="/profile/:id" element={<ProfileLogic />} />
           <Route path="/list" element={<ProfileList />} />
           <Route path="/addProfile" element={<AddProfileForm />}></Route>
         </Routes>

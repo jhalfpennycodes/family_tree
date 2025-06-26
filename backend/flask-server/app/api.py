@@ -34,9 +34,12 @@ class ListAllFamilyMembersResource(Resource):
                 'first_name': person.first_name,
                 'last_name': person.last_name,
                 'gender': person.gender,
-                'mother': person.mother.first_name if person.mother else None,
-                'father': person.father.first_name if person.father else None,
-                'children': children_data
+                'dob':  person.dob.strftime('%m/%d/%Y'),
+                'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
+                'father': f'{person.father.first_name} {person.father.last_name}' if person.father else None,
+                'children': children_data,
+                'profession': person.profession,
+                'avatar_img': person.avatar_img,
             })
 
         return result
@@ -115,9 +118,9 @@ class Tree2Resource(Resource):
                     'first_name': person.first_name,
                     'last_name': person.last_name,
                     'gender': person.gender,
-                    'dob': person.dob.isoformat(),
-                    'mother': person.mother.first_name if person.mother else None,
-                    'father': person.father.first_name if person.father else None,
+                    'dob': person.dob.strftime('%m/%d/%Y'),
+                    'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
+                'father': f'{person.father.first_name} {person.father.last_name}' if person.father else None,
                     'profession': person.profession
                     } 
             })
@@ -152,16 +155,15 @@ class FamilyMemberProfileResource(Resource):
         if not person:
             return "Person not found, please try again with a valid ID"
         result = []
-        dob = person.dob.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        print(dob)
+        dob = person.dob.strftime("%Y/%m/%d")
         result.append({
             'id': person.id,
             'first_name': person.first_name,
             'last_name': person.last_name,
             'gender': person.gender,
             'dob': dob,
-            'mother': person.mother.first_name if person.mother else None,
-            'father': person.father.first_name if person.father else None,
+            'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
+            'father':f'{person.father.first_name} {person.father.last_name}' if person.father else None,
             'spouses': [
                 {
                     'id': partner.id,
@@ -200,7 +202,8 @@ class FamilyMemberProfileResource(Resource):
                         } for sibling in person.siblings["fathers_side_siblings"]
                     ]
                 }
-            ]
+            ],
+            'avatar_img': person.avatar_img
             }
         )
         return result
