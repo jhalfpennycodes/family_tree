@@ -92,7 +92,7 @@ export default function ProfileCard(props) {
               >
                 <img
                   src={props.avatar_img}
-                  alt={props.name}
+                  alt={`${props.firstName} ${props.lastName}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </Avatar>
@@ -110,8 +110,9 @@ export default function ProfileCard(props) {
               </IconButton>
             </React.Fragment>
           }
-          name={props.name}
-          subheader={props.name}
+          title={
+            <Typography fontWeight="bold">{`${props.firstName} ${props.lastName}`}</Typography>
+          }
         />
         <CardContent disableSpacing={true}>
           <Typography variant="body2" sx={{ mb: 0.3, color: "text.secondary" }}>

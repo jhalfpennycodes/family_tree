@@ -54,16 +54,23 @@ class ListAllFamilyMembersResource(Resource):
 
         family = Person.query.filter_by(family_id=family_id).all()
 
-        #Check for duplicate names in family
-        for person in family:
-            if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
-                return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
+        # #Check for duplicate names in family
+        # for person in family:
+        #     if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
+        #         return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
         
         optional_keys = ["mother_id", "father_id", "spouses", "birth_location", "profession", "early_life_description", "young_adult_description", "adult_life_description", "late_life_description", "avatar_img", "images"]
         for key in optional_keys:
             if key not in person_data:
                 person_data[key] = None
+
+        #Parse string date to iso format
         dob = isoparse(person_data['dob'])
+
+        #Store image data server side and upload server path to database
+        avatar_img = person_data["avatar_img"]
+        print(avatar_img)
+
         new_person = Person(
             family_id= family_id,
             first_name = person_data['first_name'],
@@ -95,19 +102,44 @@ class ListAllFamilyMembersResource(Resource):
                         spouse.spouses.append(new_person)
                 except:
                     return "The spouse ID you provided cannot be found.", 400
+        
+        if person_data['children'] != None:
+            if not isinstance(person_data['children'], list):
+                return "Please provide children in list format"
+            else:
+                try:
+                    children = Person.query.filter(Person.id.in_(person_data['children'])).all()
+                    for child in children:
+                        if new_person.gender == 'Male':
+                            if not child.father_id:
+                                child.father_id = new_person.id
+                            else:
+                                return f"{child.first_name} {child.last_name} already has a father"
+                        elif new_person.gender == 'Female':
+                            if not child.mother_id:
+                                child.mother_id = new_person.id
+                            else:
+                                return f"{child.first_name} {child.last_name} already has a mother"
+                        else:
+                            return "Please select gender at birth"
+                except:
+                    return "The children ID you have provided cannot be found", 400
 
         db.session.commit()
 
         return 200
 
 #Converts data into correct fromat for avatar nodes and computes the edges between each person
-class Tree2Resource(Resource):
+class Tree3Resource(Resource):
     def get(self, family_id):
         family = Person.query.options(
             joinedload(Person.mother),
             joinedload(Person.father),
         ).filter_by(family_id=family_id).all()
         nodes = []
+        edges = []
+        parent_store = []
+        child_store = []
         for person in family:
             nodes.append({
                 'id': person.id,
@@ -124,8 +156,6 @@ class Tree2Resource(Resource):
                     'profession': person.profession
                     } 
             })
-        edges = []
-        for person in family:
             if person.father_id:
                 edges.append({
                     'id': f'{person.father_id}->{person.id}',
@@ -138,6 +168,51 @@ class Tree2Resource(Resource):
                     'source': person.mother_id,
                     'target': person.id
                 })
+            if not person.mother and not person.father:
+                parent_store.append(person.id)
+            if not person.children:
+                child_store.append(person.id)
+        print("CHild store:",child_store)
+        print("Parent store:", parent_store)
+
+        person_highest_id = Person.query.order_by(Person.id.desc()).first()
+        highest_id = person_highest_id.id
+        # Create "add" nodes for avatar nodes with no parents
+        for index in range(len(parent_store)):
+            print("Oriniginal length",len(nodes))
+            nodes.append({
+                'id': highest_id+1,
+                'type': 'add',
+                'data': {
+                    'id': highest_id +1,
+                    'child_id': parent_store[index]
+                }
+            })
+            print("After append",len(nodes))
+            edges.append({
+                'id': f'{highest_id+1}->{parent_store[index]}',
+                'source': highest_id+1,
+                'target': parent_store[index]
+            })
+            highest_id = highest_id+1
+
+        # Create "add" nodes for avatar nodes with no children
+        for index in range(len(child_store)):
+            nodes.append({
+                'id': highest_id+1,
+                'type': 'add',
+                'data': {
+                    'id': highest_id +1,
+                    'parent_id': child_store[index]
+                }
+            })
+            edges.append({
+                'id': f'{child_store[index]}->{highest_id+1}',
+                'source': child_store[index],
+                'target': highest_id+1
+            })
+            highest_id = highest_id+1
+
         tree_data = [{
             'nodes': nodes,
             'edges': edges
@@ -162,13 +237,24 @@ class FamilyMemberProfileResource(Resource):
             'last_name': person.last_name,
             'gender': person.gender,
             'dob': dob,
-            'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
-            'father':f'{person.father.first_name} {person.father.last_name}' if person.father else None,
+            'mother': {
+                    'id': person.mother.id,
+                    'first_name': person.mother.first_name,
+                    'last_name': person.mother.last_name,
+                    'avatar_img': person.mother.avatar_img,
+                }if person.mother else {'id': None},
+            'father': {
+                    'id': person.father.id,
+                    'first_name': person.father.first_name,
+                    'last_name': person.father.last_name,
+                    'avatar_img': person.father.avatar_img,
+                } if person.father else {'id': None},
             'spouses': [
                 {
                     'id': partner.id,
                     'first_name': partner.first_name,
                     'last_name': partner.last_name,
+                    'avatar_img': partner.avatar_img,
                 } for partner in person.partners
             ],
             'children': [
@@ -176,6 +262,7 @@ class FamilyMemberProfileResource(Resource):
                     'id': child.id,
                     'first_name': child.first_name,
                     'last_name': child.last_name,
+                    'avatar_img': child.avatar_img,
                 } for child in person.children
             ],
             'siblings' : [
@@ -247,6 +334,7 @@ class FamilyMemberProfileResource(Resource):
 
 class AddFamilyMember(Resource):
     def post(self):
+
         person_data = request.get_json()
         if not person_data:
             return jsonify({'error': 'Invalid or missing JSON'}), 400
@@ -280,7 +368,7 @@ class AddFamilyMember(Resource):
             images = person_data['images']
         )
         db.session.add(new_person)
-
+        
         #Spouse data must be sent as an array of ids
         spouses = Person.query.filter(Person.id.in_(person_data['spouses'])).all()
         for spouse in spouses:

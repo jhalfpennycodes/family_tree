@@ -17,9 +17,11 @@ import {
 
 import "@xyflow/react/dist/style.css";
 import AvatarNode from "./AvatarNode";
+import AddPersonNode from "./AddPersonNode";
 import { useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import AddParent from "../common/AddPerson";
 
 const elk = new ELK();
 
@@ -121,7 +123,7 @@ const getLayoutedElements = async (nodes, edges, options = {}) => {
   }
 };
 
-const nodeTypes = { avatar: AvatarNode };
+const nodeTypes = { avatar: AvatarNode, add: AddPersonNode };
 
 function LayoutFlow() {
   const [isLoading, setLoading] = useState(true);
@@ -234,6 +236,7 @@ function LayoutFlow() {
           style={{ backgroundColor: "#F7F9FB" }}
           panOnScroll={{ Free: "free" }}
           panOnScrollSpeed={1}
+          minZoom={0.3}
         >
           <Controls position="top-right" showInteractive={false} />
           <MiniMap />

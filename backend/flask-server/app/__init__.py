@@ -7,15 +7,13 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
-CORS(app, resources={
-    r"/*": {
-        "origins": app.config['CORS_ORIGINS'],
-        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        "allow_headers": ["Content-Type", "Authorization"]
-    }
-})
-
+CORS(app, 
+     resources={r"/*": {"origins": "*"}},
+     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+     supports_credentials=True,
+     max_age=100000  # Cache preflight for 1 hour
+)
 api = Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

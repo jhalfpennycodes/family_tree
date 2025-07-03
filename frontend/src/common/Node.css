@@ -1,0 +1,15 @@
+.avatar-img {
+  width: 80px;
+  height: 80px; /* Ensure it's square */
+  border: solid rgba(0, 0, 0, 0.46) 4px;
+  border-radius: 50%; /* Makes it a circle */
+  object-fit: cover; /* Ensures the image fills the shape */
+}
+
+.add-img {
+  width: 60px;
+  height: 60px; /* Ensure it's square */
+  border: solid rgba(0, 0, 0, 0.46) 4px;
+  border-radius: 50%; /* Makes it a circle */
+  object-fit: cover; /* Ensures the image fills the shape */
+}

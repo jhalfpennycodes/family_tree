@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -7,6 +7,8 @@ import {
   Select,
   InputLabel,
   Button,
+  Stack,
+  Paper,
 } from "@mui/material";
 import rockerfellers from "../rockefellerFamily.json";
 import MenuItem from "@mui/material/MenuItem";
@@ -16,7 +18,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { FormControl } from "@mui/material";
 import { OutlinedInput } from "@mui/material";
-import dayjs from "dayjs";
+import CircularProgress from "@mui/material/CircularProgress";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
+import ImageUploading from "react-images-uploading";
+import { motion, AnimatePresence } from "framer-motion";
 
 function InputField({ value, onChange, label, boxLabel }) {
   return (
@@ -146,13 +152,13 @@ function LifeDescriptionField({ title, label, onChange, value }) {
   );
 }
 
-function SelectField({ label, value, onChange, inputValue, boxLabel }) {
+function SelectField({ label, onChange, inputValue, boxLabel }) {
   const [selectedId, setSelectedId] = useState("");
 
   const handleChange = (e) => {
     const id = e.target.value;
     setSelectedId(id);
-    onChange(e.target.value);
+    onChange(id);
   };
 
   return (
@@ -179,26 +185,91 @@ function SelectField({ label, value, onChange, inputValue, boxLabel }) {
           onChange={handleChange}
           sx={{ width: "25%", mt: 1 }}
           displayEmpty
-          renderValue={(selected) => {
-            if (selectedId === 0) {
-              console.log("HIT");
-              return <em>Unknown</em>;
-            }
-            console.log(selected);
-            const person = inputValue.find((p) => p.id === selected);
-            return person ? person.name : <em>Unkown</em>;
-          }}
         >
-          <MenuItem value="" key={0}>
-            <em>Unknown</em>
+          <MenuItem value={0} key={0}>
+            Unknown
           </MenuItem>
           {inputValue.map((person, index) => (
             <MenuItem key={index} value={person.id}>
-              {person.name}
+              {person.first_name} {person.last_name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
+    </Box>
+  );
+}
+
+function MultiSelectField({
+  label,
+  onChange,
+  onDelete,
+  formData,
+  inputData,
+  boxLabel,
+  field,
+}) {
+  const addSpouse = (e) => {
+    onChange(e.target.value, formData[field].length);
+  };
+
+  const removeSpouse = (index) => {
+    console.log(index);
+    onDelete(index);
+  };
+
+  const handleChange = (e, index) => {
+    const id = e.target.value;
+    onChange(id, index);
+  };
+
+  return (
+    <Box
+      sx={{
+        mb: 2,
+        pl: 3,
+        borderLeft: "4px solid #ccc",
+        backgroundColor: "#f9f9f9",
+        borderRadius: 1,
+        py: 1,
+      }}
+    >
+      <Typography variant="subtitle2" color="text.secondary" mb={1}>
+        {label}
+      </Typography>
+      <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+        {formData[field].map((p, index) => (
+          <Box key={index} display="flex" alignItems="center" mb={2}>
+            <Box sx={{ width: 200 }}>
+              <FormControl fullWidth>
+                <InputLabel id={`select-label-${index}`}>{boxLabel}</InputLabel>
+                <Select
+                  labelId={`select-label-${index}`}
+                  name={label}
+                  onChange={(e) => handleChange(e, index)}
+                  id={`select-${index}`}
+                  value={p || 0}
+                  displayEmpty
+                >
+                  <MenuItem value={0} key={0}>
+                    None
+                  </MenuItem>
+                  {inputData.map((person, personIndex) => (
+                    <MenuItem key={personIndex} value={person.id}>
+                      {person.first_name} {person.last_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <HighlightOffOutlinedIcon
+              sx={{ cursor: "pointer", color: "error.main", ml: 1 }}
+              onClick={() => removeSpouse(index)}
+            />
+          </Box>
+        ))}
+        <AddCircleIcon sx={{ cursor: "pointer" }} onClick={addSpouse} />
+      </Stack>
     </Box>
   );
 }
@@ -243,7 +314,104 @@ function GenderSelectField({ label, value, onChange, boxLabel }) {
   );
 }
 
+function ImageField({ onChange }) {
+  const [images, setImages] = useState();
+  const maxNumber = 1;
+  const [avatarImg, setAvatarImg] = useState(
+    "https://cdn-icons-png.freepik.com/256/8467/8467062.png?semt=ais_hybrid"
+  );
+
+  // renamed to avoid clashing with prop
+  const handleImageChange = (imageList) => {
+    if (imageList && imageList.length > 0) {
+      const imageDataUrl = imageList[0]["data_url"];
+      setAvatarImg(imageDataUrl);
+      // send raw data (or whole imageList[0] if needed) to parent
+      onChange("avatar_img", imageList[0].file);
+    } else {
+      const defaultAvatar =
+        "https://cdn-icons-png.freepik.com/256/8467/8467062.png?semt=ais_hybrid";
+      setAvatarImg(defaultAvatar);
+      onChange("avatar_img", defaultAvatar); // or null
+    }
+
+    setImages(imageList);
+  };
+
+  return (
+    <div className="App">
+      <ImageUploading
+        multiple
+        value={images}
+        onChange={handleImageChange}
+        maxNumber={maxNumber}
+        dataURLKey="data_url"
+      >
+        {({
+          imageList,
+          onImageUpload,
+          onImageRemoveAll,
+          isDragging,
+          dragProps,
+        }) => (
+          <div className="upload__image-wrapper">
+            <Avatar
+              src={avatarImg}
+              alt="Add avatar image"
+              sx={{
+                width: 150,
+                height: 150,
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginRight: 1,
+                cursor: "pointer",
+                transition: "box-shadow 0.3s",
+                boxShadow: 2,
+                "&:hover": {
+                  boxShadow: 8,
+                },
+              }}
+              elevation={3}
+              style={isDragging ? { color: "red" } : undefined}
+              onClick={onImageUpload}
+              {...dragProps}
+            />
+
+            <Button
+              variant="outlined"
+              onClick={onImageRemoveAll}
+              sx={{ marginTop: 2 }}
+            >
+              Remove Image
+            </Button>
+          </div>
+        )}
+      </ImageUploading>
+    </div>
+  );
+}
+
 function AddProfileForm(props) {
+  const [familyData, setFamilyData] = useState();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const getFamily = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5000/familyTree/family/1`
+        );
+        const json = await response.json();
+        console.log("Initial data: ", json);
+        setFamilyData(json);
+      } catch (error) {
+        console.error("API Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getFamily();
+  }, []);
+
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -251,22 +419,48 @@ function AddProfileForm(props) {
     dob: null,
     mother_id: "",
     father_id: "",
+    spouses: [],
+    children: [],
     birth_location: "",
     profession: "",
     early_life_description: "",
     young_adult_description: "",
     adult_life_description: "",
     late_life_description: "",
-    avatar_img: "",
+    avatar_img: null,
     images: [],
   });
 
   const handleChange = (field, value) => {
-    console.log("hit");
+    console.log("Hit handleChange function");
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+    console.log(formData);
+  };
+
+  const deleteArrayValue = (field, deleteIndex) => {
+    console.log("Hit delete function");
+    console.log(deleteIndex);
+    setFormData((prev) => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_, index) => index !== deleteIndex),
+    }));
+    console.log(formData);
+  };
+
+  const handleArrayChange = (field, value, index) => {
+    console.log("Hit ArrayChange function");
+    setFormData((prev) => {
+      const newArray = [...prev[field]];
+      newArray[index] = value; // Replace the value at the specific index
+      return {
+        ...prev,
+        [field]: newArray,
+      };
+    });
+    console.log(formData);
   };
 
   const handleSubmit = (e) => {
@@ -298,114 +492,169 @@ function AddProfileForm(props) {
   };
 
   return (
-    <form name="profileForm" onSubmit={handleSubmit}>
-      <Box
-        sx={{
-          maxWidth: 1200,
-          mx: "auto",
-          p: 3,
-          position: "relative",
-          fontFamily: "Roboto, sans-serif",
-        }}
-      >
-        <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-          Create Profile
-        </Typography>
-        <h2>General Information</h2>
-        <Box sx={{ flex: 1, minWidth: 300 }}>
-          <RequiredInputField
-            name="firstName"
-            label="First Name"
-            boxLabel="Enter first name"
-            value={formData.first_name}
-            onChange={(val) => handleChange("first_name", val)}
-          />
-          <RequiredInputField
-            label="Last Name"
-            boxLabel="Enter last name"
-            value={formData.last_name}
-            onChange={(val) => handleChange("last_name", val)}
-          />
-          <GenderSelectField
-            name="gender"
-            label="Gender"
-            boxLabel="Select gender"
-            value={formData.gender}
-            onChange={(val) => handleChange("gender", val)}
-          ></GenderSelectField>
-          <DateField
-            label="Born"
-            value={formData.dob}
-            onChange={(val) => handleChange("dob", val)}
-          />
-          <SelectField
-            label="Mother"
-            value={formData.mother}
-            onChange={(val) => handleChange("mother_id", val)}
-            inputValue={rockerfellers}
-            boxLabel="Select Mother"
-          ></SelectField>
-          <SelectField
-            label="Father"
-            value={formData.father}
-            onChange={(val) => handleChange("father_id", val)}
-            inputValue={rockerfellers}
-            boxLabel="Select Father"
-          ></SelectField>
-          <InputField
-            label="Birth Location"
-            boxLabel="Enter birth location"
-            value={formData.birth_location}
-            onChange={(val) => handleChange("birth_location", val)}
-          />
-          <InputField
-            label="Profession"
-            boxLabel="Enter profession"
-            value={formData.profession}
-            onChange={(val) => handleChange("profession", val)}
-          />
-        </Box>
-        <Box mb={2} sx={{ width: "100%" }}>
-          <h2>Life Description</h2>
-        </Box>
-        <LifeDescriptionField
-          title="Early Life"
-          label="Write about the early life of this person..."
-          value={formData.early_life_description}
-          onChange={(val) => handleChange("early_life_description", val)}
-        />
-        <LifeDescriptionField
-          title="Young Adult Life"
-          label="Write about the teenage years of this person..."
-          value={formData.young_adult_description}
-          onChange={(val) => handleChange("young_adult_description", val)}
-        />
-        <LifeDescriptionField
-          title="Adult Life"
-          label="Write about the adult life of this person..."
-          value={formData.adult_life_description}
-          onChange={(val) => handleChange("adult_life_description", val)}
-        />
-        <LifeDescriptionField
-          title="Late Life"
-          label="Write about the later year of life of this person..."
-          value={formData.late_life_description}
-          onChange={(val) => handleChange("late_life_description", val)}
-        />
-      </Box>
-      <Box
-        sx={{
-          py: 5,
-          display: "flex",
-          justifyContent: "center", // center horizontally
-          alignItems: "center", // center vertically
-        }}
-      >
-        <Button size="large" variant="contained" type="submit">
-          Submit
-        </Button>
-      </Box>
-    </form>
+    <div>
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh", // full viewport height
+            width: "100vw", // full viewport width (optional)
+          }}
+        >
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+              width: "100vw",
+            }}
+          >
+            <CircularProgress></CircularProgress>
+          </Box>
+        </div>
+      ) : (
+        <form name="profileForm" onSubmit={handleSubmit}>
+          <Box
+            sx={{
+              maxWidth: 1200,
+              mx: "auto",
+              p: 3,
+              position: "relative",
+              fontFamily: "Roboto, sans-serif",
+            }}
+          >
+            <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+              Create Profile
+            </Typography>
+            <ImageField onChange={handleChange}></ImageField>
+            <h2>General Information</h2>
+            <Box sx={{ flex: 1, minWidth: 300 }}>
+              <RequiredInputField
+                name="firstName"
+                label="First Name"
+                boxLabel="Enter first name"
+                value={formData.first_name}
+                onChange={(val) => handleChange("first_name", val)}
+              />
+              <RequiredInputField
+                label="Last Name"
+                boxLabel="Enter last name"
+                value={formData.last_name}
+                onChange={(val) => handleChange("last_name", val)}
+              />
+              <GenderSelectField
+                name="gender"
+                label="Gender"
+                boxLabel="Select gender"
+                value={formData.gender}
+                onChange={(val) => handleChange("gender", val)}
+              ></GenderSelectField>
+              <DateField
+                label="Born"
+                value={formData.dob}
+                onChange={(val) => handleChange("dob", val)}
+              />
+              <SelectField
+                label="Mother"
+                boxLabel="Select Mother"
+                value={formData.mother}
+                onChange={(val) => handleChange("mother_id", val)}
+                inputValue={familyData.filter(
+                  (person) => person.gender === "Female"
+                )}
+              ></SelectField>
+              <SelectField
+                label="Father"
+                boxLabel="Select Father"
+                value={formData.father}
+                onChange={(val) => handleChange("father_id", val)}
+                inputValue={familyData.filter(
+                  (person) => person.gender === "Male"
+                )}
+              ></SelectField>
+              <MultiSelectField
+                label="Spouse(s)"
+                boxLabel="Select spouse"
+                value={formData.spouses}
+                inputData={familyData}
+                formData={formData}
+                onChange={(val, index) =>
+                  handleArrayChange("spouses", val, index)
+                }
+                onDelete={(index) => deleteArrayValue("spouses", index)}
+                field="spouses"
+              ></MultiSelectField>
+              <MultiSelectField
+                label="Children"
+                boxLabel="Select child"
+                value={formData.children}
+                inputData={familyData}
+                formData={formData}
+                onChange={(val, index) =>
+                  handleArrayChange("children", val, index)
+                }
+                onDelete={(index) => deleteArrayValue("children", index)}
+                field="children"
+              ></MultiSelectField>
+              <InputField
+                label="Birth Location"
+                boxLabel="Enter birth location"
+                value={formData.birth_location}
+                onChange={(val) => handleChange("birth_location", val)}
+              />
+              <InputField
+                label="Profession"
+                boxLabel="Enter profession"
+                value={formData.profession}
+                onChange={(val) => handleChange("profession", val)}
+              />
+            </Box>
+            <Box mb={2} sx={{ width: "100%" }}>
+              <h2>Life Description</h2>
+            </Box>
+            <LifeDescriptionField
+              title="Early Life"
+              label="Write about the early life of this person..."
+              value={formData.early_life_description}
+              onChange={(val) => handleChange("early_life_description", val)}
+            />
+            <LifeDescriptionField
+              title="Young Adult Life"
+              label="Write about the teenage years of this person..."
+              value={formData.young_adult_description}
+              onChange={(val) => handleChange("young_adult_description", val)}
+            />
+            <LifeDescriptionField
+              title="Adult Life"
+              label="Write about the adult life of this person..."
+              value={formData.adult_life_description}
+              onChange={(val) => handleChange("adult_life_description", val)}
+            />
+            <LifeDescriptionField
+              title="Late Life"
+              label="Write about the later year of life of this person..."
+              value={formData.late_life_description}
+              onChange={(val) => handleChange("late_life_description", val)}
+            />
+          </Box>
+          <Box
+            sx={{
+              py: 5,
+              display: "flex",
+              justifyContent: "center", // center horizontally
+              alignItems: "center", // center vertically
+            }}
+          >
+            <Button size="large" variant="contained" type="submit">
+              Submit
+            </Button>
+          </Box>
+        </form>
+      )}
+    </div>
   );
 }
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Stack from "@mui/material/Stack";
 import ProfileCard from "../profile/ProfileCard";
 import { motion, AnimatePresence } from "framer-motion";
-import "./Avatar.css";
+import "./Node.css";
 import { img } from "framer-motion/client";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
@@ -13,6 +13,18 @@ export default function Avatar(props) {
   const [loading, setLoading] = useState(true);
   const toggleExpanded = () => {
     setExpanded((prev) => !prev);
+  };
+  const [initials, setInitials] = useState("");
+
+  const handleInitials = async () => {
+    try {
+      const response = await fetch(`https://ui-avatars.com/api/?name=John+Doe`);
+
+      console.log("Initial data: ", response);
+      setInitials(response.body);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
   };
 
   setTimeout(() => {
@@ -43,8 +55,14 @@ export default function Avatar(props) {
                 whileTap={{ scale: 1 }}
                 className="avatar-img"
                 onClick={toggleExpanded}
-                src={props.avatar_img}
-                alt={props.name}
+                src={
+                  // `https://ui-avatars.com/api/?name=${props.id}`
+                  props.avatar_img
+                    ? props.avatar_img
+                    : `https://ui-avatars.com/api/?name=${props.first_name}+${props.last_name}`
+                }
+                onError={handleInitials}
+                alt={`${props.first_name} ${props.last_name}`}
               />
             )}
 
@@ -52,7 +70,8 @@ export default function Avatar(props) {
               <ProfileCard
                 id={props.id}
                 avatar_img={props.avatar_img}
-                name={props.name}
+                firstName={props.first_name}
+                lastName={props.last_name}
                 gender={props.gender}
                 dob={props.dob}
                 father={props.father ? props.father : "Unknown"}

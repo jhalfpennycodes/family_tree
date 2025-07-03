@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Avatar,
   Box,
@@ -8,17 +8,38 @@ import {
   ImageList,
   ImageListItem,
   Button,
+  Stack,
 } from "@mui/material";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 
-function ProfileField({ label, value, editable, id }) {
+function BornField({ label, profileData, editable }) {
+  if (!editable)
+    return (
+      <Box
+        sx={{
+          mb: 2,
+          pl: 3,
+          borderLeft: "4px solid #ccc",
+          backgroundColor: "#f9f9f9",
+          borderRadius: 1,
+          py: 1,
+        }}
+      >
+        <Typography variant="subtitle" color="text.secondary" mb={2}>
+          {label}
+        </Typography>
+        <Typography variant="body1">{profileData}</Typography>
+      </Box>
+    );
+}
+
+function ProfileField({ label, value, editable }) {
   return (
     <Box
       sx={{
@@ -47,7 +68,45 @@ function ProfileField({ label, value, editable, id }) {
   );
 }
 
-function ProfileSelectField({ label, value, editable }) {
+function ProfileSelectField({
+  label,
+  profileData,
+  editable,
+  inputData,
+  field,
+}) {
+  if (!profileData[field].id) {
+    return (
+      <Box
+        sx={{
+          mb: 2,
+          pl: 3,
+          borderLeft: "4px solid #ccc",
+          backgroundColor: "#f9f9f9",
+          borderRadius: 1,
+          py: 1,
+        }}
+      >
+        <Typography variant="subtitle" color="text.secondary" mb={2}>
+          {label}
+        </Typography>
+        {editable ? (
+          <select name="selectMother">
+            {inputData.map((person) => (
+              <option key={person.id}>
+                {person.first_name} {person.last_name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Box display="flex" alignItems="center">
+            <Typography>Unknown</Typography>
+          </Box>
+        )}
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -64,12 +123,145 @@ function ProfileSelectField({ label, value, editable }) {
       </Typography>
       {editable ? (
         <select name="selectMother">
-          {rockerfellers.map((rockerfeller) => (
-            <option key={rockerfeller.id}>{rockerfeller.name} </option>
+          {inputData.map((person) => (
+            <option key={person.id}>
+              {person.first_name} {person.last_name}
+            </option>
           ))}
         </select>
       ) : (
-        <Typography variant="body1">{value}</Typography>
+        <Link
+          to={`/profile/${profileData[field].id}`}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <Box display="flex" alignItems="center">
+            <Avatar
+              src={profileData[field].avatar_img}
+              alt="Profile"
+              sx={{
+                width: 50,
+                height: 50,
+                border: "4px solid rgba(0, 0, 0, 0.46)",
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginRight: 1,
+              }}
+            />
+            <Typography>
+              {profileData[field].first_name} {profileData[field].last_name}
+            </Typography>
+          </Box>
+        </Link>
+      )}
+    </Box>
+  );
+}
+
+function ProfileMultiSelectField({
+  label,
+  onChange,
+  onDelete,
+  formData,
+  inputData,
+  boxLabel,
+  field,
+  editable,
+}) {
+  const addSpouse = (e) => {
+    onChange(e.target.value, formData[field].length);
+  };
+
+  const removeSpouse = (index) => {
+    console.log(index);
+    onDelete(index);
+  };
+
+  const handleChange = (e, index) => {
+    const id = e.target.value;
+    onChange(id, index);
+  };
+
+  return (
+    <Box
+      sx={{
+        mb: 2,
+        pl: 3,
+        borderLeft: "4px solid #ccc",
+        backgroundColor: "#f9f9f9",
+        borderRadius: 1,
+        py: 1,
+      }}
+    >
+      <Typography variant="subtitle2" color="text.secondary" mb={1}>
+        {label}
+      </Typography>
+      {editable ? (
+        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+          {formData[field].map((p, index) => (
+            <Box key={index} display="flex" alignItems="center" mb={2}>
+              <Box sx={{ width: 200 }}>
+                <FormControl fullWidth>
+                  <InputLabel id={`select-label-${index}`}>
+                    {boxLabel}
+                  </InputLabel>
+                  <Select
+                    labelId={`select-label-${index}`}
+                    name={label}
+                    onChange={(e) => handleChange(e, index)}
+                    id={`select-${index}`}
+                    value={p || 0}
+                    displayEmpty
+                  >
+                    <MenuItem value={0} key={0}>
+                      None
+                    </MenuItem>
+                    {inputData.map((person, personIndex) => (
+                      <MenuItem key={personIndex} value={person.id}>
+                        {person.first_name} {person.last_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              <HighlightOffOutlinedIcon
+                sx={{ cursor: "pointer", color: "error.main", ml: 1 }}
+                onClick={() => removeSpouse(index)}
+              />
+            </Box>
+          ))}
+          <AddCircleIcon sx={{ cursor: "pointer" }} onClick={addSpouse} />
+        </Stack>
+      ) : (
+        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+          {inputData[field].map((person, index) => (
+            <Box key={index} display="flex" alignItems="center" mb={2}>
+              <Box sx={{ width: 200 }}>
+                <Link
+                  to={`/profile/${person.id}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <Box display="flex" alignItems="center">
+                    <Avatar
+                      src={person.avatar_img}
+                      alt="Profile"
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        border: "4px solid rgba(0, 0, 0, 0.46)",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        marginRight: 1, // adds space between avatar and text
+                      }}
+                    />
+                    <Typography>
+                      {person.first_name} {person.last_name}
+                    </Typography>
+                  </Box>
+                </Link>
+              </Box>
+            </Box>
+          ))}
+        </Stack>
       )}
     </Box>
   );
@@ -142,23 +334,47 @@ function LifeDescriptionSection({ value, editable }) {
 }
 
 function ProfilePage({ profileData }) {
-  if (!profileData) {
-    return <div>No Data</div>;
-  }
-  console.log("Data entering component ", profileData);
-  console.log("Name", profileData.first_name);
   const [editable, setEditable] = useState(false);
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [familyData, setFamilyData] = useState();
 
   const handleClick = (event) => {
     if (event) {
       setAnchorEl(event.currentTarget);
     }
   };
+
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const deleteProfile = () => {
+    const shouldRemove = confirm(
+      "Are you sure you want to delete this profile?"
+    );
+    if (shouldRemove) {
+      console.log("About to send DELETE request...");
+      fetch(`http://127.0.0.1:5000/familyTree/profile/${profileData.id}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+    }
+  };
+
+  const handleEdit = () => {
+    setEditable(true);
+    try {
+      const response = fetch(`http://127.0.0.1:5000/familyTree/family/1`);
+      const json = response.json();
+      console.log("Initial data: ", json);
+      setFamilyData(json);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
   };
 
   return (
@@ -196,7 +412,7 @@ function ProfilePage({ profileData }) {
               position: "absolute",
               top: 80,
               right: 0,
-              boxShadow: 2,
+              boxShadow: 1,
             }}
           >
             Done
@@ -231,14 +447,12 @@ function ProfilePage({ profileData }) {
           <MenuItem onClick={handleClose}>
             <EditIcon
               onClick={() => {
-                setEditable(!editable);
+                handleEdit;
               }}
             />
           </MenuItem>
           <MenuItem onClick={handleClose}>
-            <Link>
-              <DeleteIcon />
-            </Link>
+            <DeleteIcon onClick={deleteProfile} />
           </MenuItem>
         </Menu>
       </Box>
@@ -249,63 +463,39 @@ function ProfilePage({ profileData }) {
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
         {/* Profile fields with spacing (left) */}
         <Box sx={{ flex: 1, minWidth: 300 }}>
-          <ProfileField
+          <BornField
             label="Born"
-            value={profileData.dob ? profileData.dob : "Unable to load"}
+            profileData={profileData.dob ? profileData.dob : "Unable to load"}
             editable={editable}
           />
+          {console.log(profileData)}
           <ProfileSelectField
             label="Mother"
-            value={profileData.mother ? profileData.mother : "Unknown"}
+            profileData={profileData ? profileData : "Unknown"}
             editable={editable}
+            inputData={familyData}
+            field="mother"
           />
-          <ProfileField
+          <ProfileSelectField
             label="Father"
-            value={profileData.father ? profileData.father : "Unknown"}
+            profileData={profileData ? profileData : "Unknown"}
             editable={editable}
+            inputData={familyData}
+            field="father"
           />
-
-          {profileData.spouses && profileData.spouses.length > 0 ? (
-            profileData.spouses.map((spouse) => (
-              <ProfileField
-                label="Spouse(s)"
-                value={`${spouse.first_name} ${spouse.last_name}`}
-                editable={editable}
-              />
-            ))
-          ) : (
-            <ProfileField
-              label="Spouse(s)"
-              value="No known spouses"
-              editable={editable}
-            />
-          )}
-          {profileData.children && profileData.children.length > 0 ? (
-            profileData.children.map((index, child) => (
-              <ProfileField
-                key={index}
-                label="Children"
-                value={`${child.first_name} ${child.last_name}`}
-                editable={editable}
-              />
-            ))
-          ) : (
-            <ProfileField
-              label="Spouse(s)"
-              value="No known chidlren"
-              editable={editable}
-            />
-          )}
-          {/* <ProfileField
+          <ProfileMultiSelectField
             label="Spouse(s)"
-            value={profileData.siblings || "Mary Rockerfeller"}
+            inputData={profileData}
             editable={editable}
-          />
-          <ProfileField
-            label="Siblings"
-            value={profileData.siblings[0] || "Anna Doe, Mark Doe"}
+            field="spouses"
+          ></ProfileMultiSelectField>
+          <ProfileMultiSelectField
+            label="Children"
+            inputData={profileData}
             editable={editable}
-          /> */}
+            field="children"
+          ></ProfileMultiSelectField>
+
           <ProfileField
             label="Birth Location"
             value={profileData.birth_location || "London, UK"}
