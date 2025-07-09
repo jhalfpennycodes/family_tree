@@ -10,7 +10,6 @@ import {
   Stack,
   Paper,
 } from "@mui/material";
-import rockerfellers from "../rockefellerFamily.json";
 import MenuItem from "@mui/material/MenuItem";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -214,7 +213,6 @@ function MultiSelectField({
   };
 
   const removeSpouse = (index) => {
-    console.log(index);
     onDelete(index);
   };
 
@@ -327,7 +325,7 @@ function ImageField({ onChange }) {
       const imageDataUrl = imageList[0]["data_url"];
       setAvatarImg(imageDataUrl);
       // send raw data (or whole imageList[0] if needed) to parent
-      onChange("avatar_img", imageList[0].file);
+      onChange("avatar_img", imageList[0]["data_url"]);
     } else {
       const defaultAvatar =
         "https://cdn-icons-png.freepik.com/256/8467/8467062.png?semt=ais_hybrid";
@@ -401,7 +399,6 @@ function AddProfileForm(props) {
           `http://127.0.0.1:5000/familyTree/family/1`
         );
         const json = await response.json();
-        console.log("Initial data: ", json);
         setFamilyData(json);
       } catch (error) {
         console.error("API Error:", error);
@@ -432,26 +429,20 @@ function AddProfileForm(props) {
   });
 
   const handleChange = (field, value) => {
-    console.log("Hit handleChange function");
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    console.log(formData);
   };
 
   const deleteArrayValue = (field, deleteIndex) => {
-    console.log("Hit delete function");
-    console.log(deleteIndex);
     setFormData((prev) => ({
       ...prev,
       [field]: (prev[field] || []).filter((_, index) => index !== deleteIndex),
     }));
-    console.log(formData);
   };
 
   const handleArrayChange = (field, value, index) => {
-    console.log("Hit ArrayChange function");
     setFormData((prev) => {
       const newArray = [...prev[field]];
       newArray[index] = value; // Replace the value at the specific index
@@ -460,7 +451,6 @@ function AddProfileForm(props) {
         [field]: newArray,
       };
     });
-    console.log(formData);
   };
 
   const handleSubmit = (e) => {
@@ -477,7 +467,6 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
-      console.log("About to send POST request...");
       fetch("http://127.0.0.1:5000/familyTree/family/1", {
         method: "POST",
         headers: {
@@ -486,8 +475,6 @@ function AddProfileForm(props) {
         },
         body: JSON.stringify(formData),
       });
-      console.log("Form as JSON object:", formData);
-      console.log("As JSON string:", JSON.stringify(formData));
     }
   };
 

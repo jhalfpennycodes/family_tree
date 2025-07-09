@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Avatar, Box, Typography, Paper, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
-import rockerfellers from "../rockefellerFamily.json";
 import CircularProgress from "@mui/material/CircularProgress";
 
-function ProfileCard({ person }) {
+function ProfileBanner({ person }) {
   return (
     <Link to={`/profile/${person.id}`} style={{ textDecoration: "none" }}>
       <Paper
@@ -44,7 +43,6 @@ function ProfileCard({ person }) {
           <Typography variant="body2" color="text.secondary">
             Profession: {person.profession || "N/A"}
           </Typography>
-          {/* You could add more summary fields here */}
         </Box>
       </Paper>
     </Link>
@@ -61,7 +59,6 @@ function ProfilesList() {
           `http://127.0.0.1:5000/familyTree/family/1`
         );
         const json = await response.json();
-        console.log("Initial data: ", json);
         setFamilyData(json);
       } catch (error) {
         console.error("API Error:", error);
@@ -78,8 +75,8 @@ function ProfilesList() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100vh", // full viewport height
-          width: "100vw", // full viewport width (optional)
+          height: "100vh",
+          width: "100vw",
         }}
       >
         <CircularProgress></CircularProgress>
@@ -89,8 +86,6 @@ function ProfilesList() {
   if (!familyData) return <div>Error loading data</div>;
 
   if (Array.isArray(familyData) && familyData.length > 0) {
-    console.log("Hirt");
-    console.log("Family", familyData[0].first_name);
     return (
       <Box
         sx={{
@@ -107,7 +102,7 @@ function ProfilesList() {
         <Grid container spacing={3}>
           {familyData.map((person) => (
             <Grid key={person.id}>
-              <ProfileCard person={person} />
+              <ProfileBanner person={person} />
             </Grid>
           ))}
         </Grid>

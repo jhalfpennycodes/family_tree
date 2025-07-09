@@ -1,27 +1,20 @@
-import { initialEdges, newNodes } from "../initialElements";
-import ELK from "elkjs/lib/elk.bundled.js";
-import React, { useState, useRef, useCallback, useLayoutEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   Background,
   ReactFlow,
   Controls,
   MiniMap,
   ReactFlowProvider,
-  addEdge,
-  Panel,
   useNodesState,
   useEdgesState,
   useReactFlow,
-  useUpdateNodeInternals,
 } from "@xyflow/react";
-
 import "@xyflow/react/dist/style.css";
+import ELK from "elkjs/lib/elk.bundled.js";
 import AvatarNode from "./AvatarNode";
 import AddPersonNode from "./AddPersonNode";
-import { useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import AddParent from "../common/AddPerson";
 
 const elk = new ELK();
 
@@ -32,22 +25,7 @@ const elkOptions = {
 };
 
 const getLayoutedElements = async (nodes, edges, options = {}) => {
-  console.log("getLayoutedElements called with:", { nodes, edges, options });
-
-  // Debug: Check edge format before layout
-  console.log("Edges before layout:", edges);
-  edges.forEach((edge, index) => {
-    console.log(`Edge ${index}:`, {
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-    });
-  });
-
-  // Debug: Check if all edge sources/targets have corresponding nodes
   const nodeIds = nodes.map((n) => n.id);
-  console.log("Available node IDs:", nodeIds);
 
   const invalidEdges = edges.filter(
     (edge) => !nodeIds.includes(edge.source) || !nodeIds.includes(edge.target)
@@ -75,12 +53,7 @@ const getLayoutedElements = async (nodes, edges, options = {}) => {
       edges: edges,
     };
 
-    console.log("Graph for ELK:", graph);
     const layoutedGraph = await elk.layout(graph);
-    console.log("ELK layout result:", layoutedGraph);
-
-    // Debug: Check what ELK returns for edges
-    console.log("ELK returned edges:", layoutedGraph.edges);
 
     const result = {
       nodes: layoutedGraph.children.map((node) => ({
@@ -102,9 +75,6 @@ const getLayoutedElements = async (nodes, edges, options = {}) => {
           type: "smoothstep",
         })),
     };
-
-    console.log("Final result:", result);
-    console.log("Final edges:", result.edges);
 
     return result;
   } catch (error) {
@@ -140,16 +110,8 @@ function LayoutFlow() {
         { method: "GET" }
       );
       const json = await response.json();
-      console.log("API Response:", json);
 
       if (json && json[0]) {
-        console.log("Nodes:", json[0].nodes);
-        console.log("Edges:", json[0].edges);
-
-        // Debug: Log the actual structure of nodes and edges
-        console.log("Sample node:", json[0].nodes[0]);
-        console.log("Sample edge:", json[0].edges[0]);
-
         const opts = { "elk.direction": "DOWN", ...elkOptions };
 
         try {
@@ -159,15 +121,8 @@ function LayoutFlow() {
             opts
           );
 
-          console.log("Layout result:", layoutResult);
-
           if (layoutResult && layoutResult.nodes && layoutResult.edges) {
             const { nodes: layoutedNodes, edges: layoutedEdges } = layoutResult;
-
-            // Debug: Final check before setting state
-            console.log("Setting nodes:", layoutedNodes.length);
-            console.log("Setting edges:", layoutedEdges.length);
-            console.log("Edge sample after layout:", layoutedEdges[0]);
 
             setNodes(layoutedNodes);
             setEdges(layoutedEdges);
@@ -214,9 +169,6 @@ function LayoutFlow() {
   useEffect(() => {
     handleNodesChange();
   }, [nodes, handleNodesChange]);
-
-  // Debug: Log current state
-  console.log("Current render - Nodes:", nodes.length, "Edges:", edges.length);
 
   return (
     <div

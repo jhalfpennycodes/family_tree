@@ -30,15 +30,6 @@ export default function Navbar() {
               Add Person
             </Button>
           </Link>
-          <Button
-            color="inherit"
-            startIcon={
-              <Avatar alt="My Profile" sx={{ width: 24, height: 24 }} />
-            }
-            sx={{ textTransform: "none" }}
-          >
-            My Profile
-          </Button>
         </Stack>
       </Toolbar>
     </AppBar>

@@ -39,7 +39,7 @@ function BornField({ label, profileData, editable }) {
     );
 }
 
-function ProfileField({ label, value, editable }) {
+function ProfileTextField({ label, value, editable }) {
   return (
     <Box
       sx={{
@@ -172,7 +172,6 @@ function ProfileMultiSelectField({
   };
 
   const removeSpouse = (index) => {
-    console.log(index);
     onDelete(index);
   };
 
@@ -334,7 +333,6 @@ function LifeDescriptionSection({ value, editable }) {
 }
 
 function ProfilePage({ profileData }) {
-  const [editable, setEditable] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [familyData, setFamilyData] = useState();
@@ -347,34 +345,6 @@ function ProfilePage({ profileData }) {
 
   const handleClose = () => {
     setAnchorEl(null);
-  };
-
-  const deleteProfile = () => {
-    const shouldRemove = confirm(
-      "Are you sure you want to delete this profile?"
-    );
-    if (shouldRemove) {
-      console.log("About to send DELETE request...");
-      fetch(`http://127.0.0.1:5000/familyTree/profile/${profileData.id}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      });
-    }
-  };
-
-  const handleEdit = () => {
-    setEditable(true);
-    try {
-      const response = fetch(`http://127.0.0.1:5000/familyTree/family/1`);
-      const json = response.json();
-      console.log("Initial data: ", json);
-      setFamilyData(json);
-    } catch (error) {
-      console.error("API Error:", error);
-    }
   };
 
   return (
@@ -403,58 +373,6 @@ function ProfilePage({ profileData }) {
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
           {profileData.first_name} {profileData.last_name}
         </Typography>
-        {editable ? (
-          <Button
-            onClick={() => {
-              setEditable(!editable);
-            }}
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              boxShadow: 1,
-            }}
-          >
-            Done
-          </Button>
-        ) : (
-          <IconButton
-            aria-label="more options"
-            aria-controls={open ? "profile-menu" : undefined}
-            aria-haspopup="true"
-            onClick={handleClick}
-            size="large"
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              borderRadius: "50%",
-              boxShadow: 2,
-            }}
-          >
-            <MoreHorizIcon />
-          </IconButton>
-        )}
-
-        <Menu
-          id="profile-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={handleClose}>
-            <EditIcon
-              onClick={() => {
-                handleEdit;
-              }}
-            />
-          </MenuItem>
-          <MenuItem onClick={handleClose}>
-            <DeleteIcon onClick={deleteProfile} />
-          </MenuItem>
-        </Menu>
       </Box>
 
       <h2>General Inforamtion</h2>
@@ -466,76 +384,40 @@ function ProfilePage({ profileData }) {
           <BornField
             label="Born"
             profileData={profileData.dob ? profileData.dob : "Unable to load"}
-            editable={editable}
           />
-          {console.log(profileData)}
           <ProfileSelectField
             label="Mother"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
             inputData={familyData}
             field="mother"
           />
           <ProfileSelectField
             label="Father"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
             inputData={familyData}
             field="father"
           />
           <ProfileMultiSelectField
             label="Spouse(s)"
             inputData={profileData}
-            editable={editable}
             field="spouses"
           ></ProfileMultiSelectField>
           <ProfileMultiSelectField
             label="Children"
             inputData={profileData}
-            editable={editable}
             field="children"
           ></ProfileMultiSelectField>
 
-          <ProfileField
+          <ProfileTextField
             label="Birth Location"
             value={profileData.birth_location || "London, UK"}
-            editable={editable}
           />
-          <ProfileField
+          <ProfileTextField
             label="Profession"
             value={profileData.profession || "Philanthropist"}
-            editable={editable}
           />
         </Box>
-        {/* Dynamic wrapping photo album */}
-        {/* <ImageList
-          cols={2}
-          gap={4}
-          sx={{
-            borderRadius: 1,
-            boxShadow: 5,
-            bgcolor: "background.paper",
-            maxWidth: 500,
-            maxHeight: 550,
-            width: "100%",
-          }}
-        > */}
-        {/* {rockerfellers.map((item) => (
-            <ImageListItem key={item.id} sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <img
-                src={item.imgUrl}
-                alt={item.name}
-                loading="lazy"
-                width={"100%"}
-                height={"auto"}
-              />
-            </ImageListItem>
-          ))}
-        </ImageList> */}
-        <LifeDescriptionSection
-          value={profileData.lifeDescription}
-          editable={editable}
-        />
+        <LifeDescriptionSection value={profileData.lifeDescription} />
       </Box>
     </Box>
   );
@@ -553,7 +435,6 @@ function ProfileLogic() {
           `http://127.0.0.1:5000/familyTree/profile/${id}`
         );
         const json = await response.json();
-        console.log("Initial data: ", json);
         setProfileData(json);
       } catch (error) {
         console.error("API Error:", error);
@@ -581,7 +462,6 @@ function ProfileLogic() {
     );
   }
   if (!profileData) return <div>Error loading profile</div>;
-  console.log("Profile Data: ", profileData);
   return <ProfilePage profileData={profileData[0]} />;
 }
 

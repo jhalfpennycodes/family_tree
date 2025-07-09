@@ -5,6 +5,8 @@ from app import db, api, app
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 from dateutil.parser import isoparse
+import os
+import re
 
 app = Flask(__name__)
 api = Api(app)
@@ -54,10 +56,10 @@ class ListAllFamilyMembersResource(Resource):
 
         family = Person.query.filter_by(family_id=family_id).all()
 
-        # #Check for duplicate names in family
-        # for person in family:
-        #     if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
-        #         return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
+        #Check for duplicate names in family
+        for person in family:
+            if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
+                return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
         
         optional_keys = ["mother_id", "father_id", "spouses", "birth_location", "profession", "early_life_description", "young_adult_description", "adult_life_description", "late_life_description", "avatar_img", "images"]
         for key in optional_keys:
@@ -67,9 +69,26 @@ class ListAllFamilyMembersResource(Resource):
         #Parse string date to iso format
         dob = isoparse(person_data['dob'])
 
-        #Store image data server side and upload server path to database
-        avatar_img = person_data["avatar_img"]
-        print(avatar_img)
+        #Store image upload on server and then create string path to upload to database
+        avatar_image_data = person_data['avatar_img']
+        person_highest_id = Person.query.order_by(Person.id.desc()).first()
+        highest_id = person_highest_id.id
+
+        #Extract the header from the image data
+        match = re.match(r"data:image/(?P<ext>[^;]+);base64,(?P<data>.+)", avatar_image_data)
+        if not match:
+            raise ValueError("Invalid image data URI format")
+
+        #Extract the image file type
+        ext = match.group("ext")
+
+        #Extract the image base64 data
+        base64_data = match.group("data")
+
+        #Extract the file path and append the file type to the path
+        avatar_image_file_path = f"{os.path.abspath(os.getcwd())}/app/static/uploads/avatar_img_profile_{highest_id+1}.{ext}"
+        with open(avatar_image_file_path, "w") as f:
+            f.write(avatar_image_data)
 
         new_person = Person(
             family_id= family_id,
@@ -85,7 +104,7 @@ class ListAllFamilyMembersResource(Resource):
             young_adult_description = person_data['young_adult_description'],
             adult_life_description = person_data['adult_life_description'],
             late_life_description = person_data['late_life_description'],
-            avatar_img = person_data['avatar_img'],
+            avatar_img = avatar_image_file_path,
             images = person_data['images']
         )
         db.session.add(new_person)
@@ -140,13 +159,26 @@ class Tree3Resource(Resource):
         edges = []
         parent_store = []
         child_store = []
+        pattern = r'https?://\S+|www\.\S+'
         for person in family:
+            if not person.avatar_img:
+                avatar_img = None
+            elif re.findall(pattern, person.avatar_img):
+                re.findall(pattern, person.avatar_img)
+                avatar_img = person.avatar_img
+                print("URL here")
+            else:
+                avatar_image_file_path = person.avatar_img
+                f = open(avatar_image_file_path)
+                avatar_img = f.read()
+                print(avatar_img)
+                
             nodes.append({
                 'id': person.id,
                 'type': 'avatar',
                 'data': {
                     'id': person.id,
-                    'avatar_img': person.avatar_img,
+                    'avatar_img': avatar_img,
                     'first_name': person.first_name,
                     'last_name': person.last_name,
                     'gender': person.gender,
@@ -172,14 +204,13 @@ class Tree3Resource(Resource):
                 parent_store.append(person.id)
             if not person.children:
                 child_store.append(person.id)
-        print("CHild store:",child_store)
-        print("Parent store:", parent_store)
 
+        #Retrieve highest ID to ensure no current 'avatarNodes' clash with the creation of new 'addNode'
         person_highest_id = Person.query.order_by(Person.id.desc()).first()
         highest_id = person_highest_id.id
+
         # Create "add" nodes for avatar nodes with no parents
         for index in range(len(parent_store)):
-            print("Oriniginal length",len(nodes))
             nodes.append({
                 'id': highest_id+1,
                 'type': 'add',
@@ -188,7 +219,6 @@ class Tree3Resource(Resource):
                     'child_id': parent_store[index]
                 }
             })
-            print("After append",len(nodes))
             edges.append({
                 'id': f'{highest_id+1}->{parent_store[index]}',
                 'source': highest_id+1,
@@ -231,6 +261,20 @@ class FamilyMemberProfileResource(Resource):
             return "Person not found, please try again with a valid ID"
         result = []
         dob = person.dob.strftime("%Y/%m/%d")
+
+        pattern = r'https?://\S+|www\.\S+'
+        if not person.avatar_img:
+            avatar_img = None
+        elif re.findall(pattern, person.avatar_img):
+            re.findall(pattern, person.avatar_img)
+            avatar_img = person.avatar_img
+            print("URL here")
+        else:
+            avatar_image_file_path = person.avatar_img
+            f = open(avatar_image_file_path)
+            avatar_img = f.read()
+            print(avatar_img)
+
         result.append({
             'id': person.id,
             'first_name': person.first_name,
@@ -290,31 +334,10 @@ class FamilyMemberProfileResource(Resource):
                     ]
                 }
             ],
-            'avatar_img': person.avatar_img
+            'avatar_img': avatar_img
             }
         )
         return result
-    
-    #No option to patch spouses, siblings or children
-    def patch(self, person_id):
-        try:
-            person = Person.query.get(person_id)
-            if not person:
-                return f'Person with ID {person_id} does not exist', 400
-            patch_data = request.get_json()
-            if 'spouses' in patch_data or 'siblings' in patch_data:
-                return 'You cannot edit spouses, children or siblings for now.', 400
-            for key, value in patch_data.items():
-                if hasattr(person, key):
-                    if key == "dob":
-                        value = datetime.strptime(value, "%Y-%m-%d")
-                    setattr(person, key, value)
-                else:
-                    return "You can't edit this attribute!", 400
-            db.session.commit()
-            return 200
-        except:
-            return "The request body was incorrect.", 400
     
     def delete(self, person_id):
         person = Person.query.get(person_id)
@@ -331,51 +354,3 @@ class FamilyMemberProfileResource(Resource):
             return f'Person {person.id} ({person.first_name} {person.last_name}), deleted successfully', 200
         else:
             return f'Person with ID {person_id} does not exist'
-
-class AddFamilyMember(Resource):
-    def post(self):
-
-        person_data = request.get_json()
-        if not person_data:
-            return jsonify({'error': 'Invalid or missing JSON'}), 400
-        required_fields = ['first_name', 'last_name', 'gender', 'dob']
-        if not all(field in person_data for field in required_fields):
-            return 'Please provide all data (first name, last name, gender, date of birth)', 400
-
-        family = Person.query.filter_by(family_id=person_data['family_id']).all()
-
-        #Check for duplicate names in family
-        for person in family:
-            if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
-                return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
-        
-        dob = datetime.strptime(person_data['dob'], "%Y-%m-%dT%H:%M:%S.%fZ")
-        new_person = Person(
-            family_id= person_data['family_id'],
-            first_name = person_data['first_name'],
-            last_name = person_data['last_name'],
-            gender = person_data['gender'],
-            dob = dob,
-            mother_id = person_data['mother_id'],
-            father_id = person_data['father_id'],
-            birth_location = person_data['birth_location'],
-            profession = person_data['profession'],
-            early_life_description = person_data['early_life_description'],
-            young_adult_description = person_data['young_adult_description'],
-            adult_life_description = person_data['adult_life_description'],
-            late_life_description = person_data['late_life_description'],
-            avatar_img = person_data['avatar_img'],
-            images = person_data['images']
-        )
-        db.session.add(new_person)
-        
-        #Spouse data must be sent as an array of ids
-        spouses = Person.query.filter(Person.id.in_(person_data['spouses'])).all()
-        for spouse in spouses:
-            new_person.spouses.append(spouse)
-            spouse.spouses.append(new_person)
-
-        db.session.commit()
-
-        return 200
-

@@ -1,8 +1,7 @@
 import React from "react";
 import { Handle, Position, useUpdateNodeInternals } from "@xyflow/react";
-import Avatar from "../common/Avatar"; // your avatar UI component
-import datas from "../rockefellerFamily.json";
-import { useState, useCallback, useEffect } from "react";
+import Avatar from "../common/Avatar";
+import { useEffect } from "react";
 
 const AvatarNode = ({ data }) => {
   const updateNodeInternals = useUpdateNodeInternals();
@@ -16,7 +15,7 @@ const AvatarNode = ({ data }) => {
       style={{
         width: 150,
         height: 50,
-        position: "relative", // Ensure child elements like handles are relative to this box
+        position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

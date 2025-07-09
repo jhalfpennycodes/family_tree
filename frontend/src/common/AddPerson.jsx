@@ -1,10 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
-import Stack from "@mui/material/Stack";
-import ProfileCard from "../profile/ProfileCard";
 import { motion, AnimatePresence } from "framer-motion";
 import "./Node.css";
-import { img } from "framer-motion/client";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";

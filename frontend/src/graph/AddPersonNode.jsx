@@ -7,7 +7,6 @@ function AddPersonNode({ data }) {
 
   useEffect(() => {
     updateNodeInternals(data.id);
-    console.log(data);
   }, [data.id, updateNodeInternals]);
 
   return (
@@ -15,7 +14,7 @@ function AddPersonNode({ data }) {
       style={{
         width: 150,
         height: 50,
-        position: "relative", // Ensure child elements like handles are relative to this box
+        position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
