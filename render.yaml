@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: flask-backend
+    runtime: python
+    rootDir: backend/flask-server
+    buildCommand: |
+      apt-get update && apt-get install -y build-essential
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
