@@ -3,3 +3,4 @@ SQLAlchemy~=2.0.29
 python-dateutil~=2.9.0.post0
 alembic~=1.13.1
 gunicorn==21.2.0
+Flask-SQLAlchemy==3.1.1
