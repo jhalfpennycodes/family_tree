@@ -166,12 +166,10 @@ class Tree3Resource(Resource):
             elif re.findall(pattern, person.avatar_img):
                 re.findall(pattern, person.avatar_img)
                 avatar_img = person.avatar_img
-                print("URL here")
             else:
                 avatar_image_file_path = person.avatar_img
                 f = open(avatar_image_file_path)
                 avatar_img = f.read()
-                print(avatar_img)
                 
             nodes.append({
                 'id': person.id,
@@ -268,12 +266,10 @@ class FamilyMemberProfileResource(Resource):
         elif re.findall(pattern, person.avatar_img):
             re.findall(pattern, person.avatar_img)
             avatar_img = person.avatar_img
-            print("URL here")
         else:
             avatar_image_file_path = person.avatar_img
             f = open(avatar_image_file_path)
             avatar_img = f.read()
-            print(avatar_img)
 
         result.append({
             'id': person.id,
