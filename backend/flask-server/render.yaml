@@ -2,9 +2,11 @@ services:
   - type: web
     name: family-tree-api
     env: python
-    pythonVersion: 3.12.15
+    pythonVersion: 3.12.10
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install -r requirements.txt
+      python create_db.py
     startCommand: gunicorn run:app --bind 0.0.0.0:$PORT
     envVars:
       - key: SECRET_KEY
