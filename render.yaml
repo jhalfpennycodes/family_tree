@@ -1,17 +1,20 @@
-
 services:
   - type: web
-    name: flask-backend
-    runtime: python
-    rootDir: backend/flask-server
+    name: family-tree-api
+    env: python
+    pythonVersion: 3.12.10
+    plan: free
     buildCommand: |
-      apt-get update && apt-get install -y build-essential
       pip install -r requirements.txt
-    startCommand: gunicorn app:app
+      python create_db.py
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT
     envVars:
-      - key: DATABASE_URL
-        sync: false
       - key: SECRET_KEY
-        sync: false
+        fromDatabase: false
+        value: "3442ef60a13d32d6459ee203dfd0b824"
+      - key: DATABASE_URL
+        fromDatabase: false
+        value: "sqlite:///db.sqlite3"
       - key: CORS_ORIGINS
-        sync: false
+        fromDatabase: false
+        value: "https://family-tree-t1mv.vercel.app/"
