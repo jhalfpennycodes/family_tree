@@ -396,7 +396,7 @@ function AddProfileForm(props) {
     const getFamily = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/familyTree/family/1`
+          `https://family-tree-ibu5.onrender.com/familyTree/family/1`
         );
         const json = await response.json();
         setFamilyData(json);
@@ -467,7 +467,7 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
-      fetch("http://127.0.0.1:5000/familyTree/family/1", {
+      fetch("https://family-tree-ibu5.onrender.com/familyTree/family/1", {
         method: "POST",
         headers: {
           Accept: "application/json",

@@ -56,7 +56,7 @@ function ProfilesList() {
     const getFamily = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/familyTree/family/1`
+          `https://family-tree-ibu5.onrender.com/familyTree/family/1`
         );
         const json = await response.json();
         setFamilyData(json);

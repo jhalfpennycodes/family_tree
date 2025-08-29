@@ -432,7 +432,7 @@ function ProfileLogic() {
     const getProfile = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/familyTree/profile/${id}`
+          `https://family-tree-ibu5.onrender.com/familyTree/profile/${id}`
         );
         const json = await response.json();
         setProfileData(json);

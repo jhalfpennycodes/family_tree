@@ -106,7 +106,7 @@ function LayoutFlow() {
   const getTree = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:5000/familyTree/tree/getTree/1",
+        "https://family-tree-ibu5.onrender.com/familyTree/tree/getTree/1",
         { method: "GET" }
       );
       const json = await response.json();
