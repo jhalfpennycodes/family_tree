@@ -1,6 +1,6 @@
 from app import app
+import os
 
 if __name__ == '__main__':
-    from waitress import serve
-    serve(app, host='127.0.0.1', port=5000)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='127.0.0.1', port=port, debug=True)
