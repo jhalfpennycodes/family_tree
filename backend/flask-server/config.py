@@ -2,7 +2,7 @@ import os
 import secrets
 
 # Get the absolute path to the backend/flask-server directory
-basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
 
 class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv(
