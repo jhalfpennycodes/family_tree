@@ -1,7 +1,12 @@
 pip>=25.2
 setuptools>=70
 wheel
-
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy==2.0.29
+greenlet>=3.0.3
+gunicorn==21.2.0
+typing_extensions>=4.7.1
 alembic==1.13.1
 aniso8601==9.0.1
 blinker==1.7.0
@@ -9,14 +14,10 @@ click==8.1.7
 dnspython==2.6.1
 email_validator==2.1.1
 fanstatic==1.4
-Flask==3.0.3
 Flask-Cors==3.0.9
 Flask-Migrate==4.0.5
 Flask-RESTful==0.3.10
-Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
-greenlet>=3.0.3
-gunicorn==21.2.0
 idna==3.7
 importlib_metadata==8.7.0
 infinity==1.5
@@ -30,7 +31,6 @@ packaging==25.0
 python-dateutil==2.9.0.post0
 pytz==2024.1
 six==1.16.0
-SQLAlchemy>=2.0.29,<2.1.0
 sqlalchemy-json==0.7.0
 SQLAlchemy-Utils==0.41.2
 typing_extensions==4.11.0
