@@ -1,3 +1,7 @@
+pip>=25.2
+setuptools>=70
+wheel
+
 alembic==1.13.1
 aniso8601==9.0.1
 blinker==1.7.0
@@ -11,7 +15,7 @@ Flask-Migrate==4.0.5
 Flask-RESTful==0.3.10
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
-greenlet==3.0.3
+greenlet>=3.0.3
 gunicorn==21.2.0
 idna==3.7
 importlib_metadata==8.7.0
@@ -31,7 +35,6 @@ sqlalchemy-json==0.7.0
 SQLAlchemy-Utils==0.41.2
 typing_extensions==4.11.0
 validators==0.28.1
-waitress==3.0.2
 WebOb==1.8.7
 Werkzeug==3.0.2
 WTForms==3.1.2
