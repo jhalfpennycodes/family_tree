@@ -96,8 +96,8 @@ const getLayoutedElements = async (nodes, edges, options = {}) => {
 const nodeTypes = { avatar: AvatarNode, add: AddPersonNode };
 
 function LayoutFlow() {
-  const [isLoading, setLoading] = useState(true);
   const [graphIsLoading, setGraphIsLoading] = useState(true);
+  const [loadTimer, setLoadTimer] = useState(0);
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
@@ -139,8 +139,6 @@ function LayoutFlow() {
       }
     } catch (error) {
       console.error("API Error:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -163,6 +161,14 @@ function LayoutFlow() {
 
   useEffect(() => {
     getTree();
+    if (!graphIsLoading) {
+      setLoadTimer(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadTimer((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Call handleNodesChange when nodes change
@@ -198,13 +204,23 @@ function LayoutFlow() {
         <Box
           style={{
             display: "flex",
+            flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
             width: "100vw",
           }}
         >
-          <CircularProgress></CircularProgress>
+          <CircularProgress />
+          {loadTimer >= 10 && (
+            <Box style={{ paddingTop: "10px" }}>
+              Still loading... Almost there!
+            </Box>
+          )}
+
+          {loadTimer >= 5 && loadTimer < 7 && (
+            <Box style={{ paddingTop: "10px" }}>Waking up the server...!</Box>
+          )}
         </Box>
       )}
     </div>
