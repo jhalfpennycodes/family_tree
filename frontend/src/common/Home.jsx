@@ -1,8 +1,8 @@
 import * as React from "react";
 import HomeCard from "./Card";
-import profileTree from "../Assets/FT_View_Tree.png";
-import sideControls from "../Assets/FT_Side_Controls.png";
-import profileOpen from "../Assets/FT_Profile_Open.png";
+import profileTree from "../assets/FT_View_Tree.png";
+import sideControls from "../assets/FT_Side_Controls.png";
+import profileOpen from "../assets/FT_Profile_Open.png";
 import { Container, Row, Col } from "react-bootstrap";
 
 export default function Home() {
