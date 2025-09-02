@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import Home from "./common/Home";
 import Tree from "./graph/Tree";
 import ProfileLogic from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
@@ -14,7 +15,7 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/" element={<div>Hello world!</div>} />
+          <Route path="/" element={<Home />} />
           <Route path="/tree" element={<Tree />} />
           <Route path="/profile/:id" element={<ProfileLogic />} />
           <Route path="/list" element={<ProfileList />} />

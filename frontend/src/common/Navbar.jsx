@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AppBar, Toolbar, Button, Avatar, Box, Stack } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import ParkIcon from "@mui/icons-material/Park";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
@@ -10,11 +11,21 @@ export default function Navbar() {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Button color="inherit" startIcon={<AccountTreeIcon />} sx={{ mr: 2 }}>
-          FreeFamilyTree
-        </Button>
+        <Link to="/">
+          <Button
+            startIcon={<AccountTreeIcon />}
+            sx={{ mr: 2, color: "white" }}
+          >
+            FreeFamilyTree
+          </Button>
+        </Link>
         <Box sx={{ flexGrow: 1 }} />
         <Stack spacing={2} direction="row">
+          <Link to="/">
+            <Button variant="contained" startIcon={<InfoIcon />}>
+              Info
+            </Button>
+          </Link>
           <Link to="/tree">
             <Button variant="contained" startIcon={<ParkIcon />}>
               View Tree
