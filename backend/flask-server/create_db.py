@@ -53,5 +53,5 @@ if __name__ == '__main__':
           create_dummy_data()
           print("Dummy data added successfully!")
         except Exception as e:
-           print("Dummy data failed!")
-           print("Error:", e)
+          print("Dummy data failed!")
+          print("Error:", e)

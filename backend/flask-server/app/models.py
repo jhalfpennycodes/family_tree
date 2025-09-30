@@ -1,11 +1,23 @@
 from app import db
 from sqlalchemy import ForeignKey
 from sqlalchemy import JSON
+from passlib.apps import custom_app_context as pwd_context
 
 spouse_link = db.Table('spouse_link', 
     db.Column('person_id', db.Integer, db.ForeignKey('person.id')),
     db.Column('spouse_id', db.Integer, db.ForeignKey('person.id'))
 )
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(32), nullable=False, index=True, unique=True)
+    password_hash = db.Column(db.String(128))
+
+    def hash_password(self, password):
+        self.password_hash = pwd_context.encrypt(password)
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password_hash)
 
 
 class Person(db.Model):

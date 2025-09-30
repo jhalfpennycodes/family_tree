@@ -4,9 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
 
 CORS(
     app,
@@ -19,6 +23,7 @@ CORS(
     allow_headers=["Content-Type", "Authorization"],
     supports_credentials=True
 )
+
 
 # Add manual CORS headers as backup
 @app.after_request
