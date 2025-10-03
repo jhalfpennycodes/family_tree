@@ -12,18 +12,25 @@ app.config.from_object(Config)
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
 
+# CORS(
+#     app,
+#     origins=Config.CORS_ORIGINS or [
+#         "http://localhost:5173",
+#         "http://127.0.0.1:5173",
+#         "http://localhost:3000"
+#     ],
+#     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+#     allow_headers=["Content-Type", "Authorization"],
+#     supports_credentials=True
+# )
+
 CORS(
     app,
-    origins=Config.CORS_ORIGINS or [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000"
-    ],
+    resources={r"/familyTree/*": {"origins": "*"}},
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
-    supports_credentials=True
+    supports_credentials=True,
 )
-
 
 # Add manual CORS headers as backup
 @app.after_request

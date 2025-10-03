@@ -7,6 +7,9 @@ import ProfileLogic from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
 import AddProfileForm from "./profile/AddProfile";
 import Navbar from "./common/Navbar";
+import SlotsSignIn from "./authentication/SignIn";
+import SignUp from "./authentication/SignUp";
+import Authentication from "./authentication/Authentication";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 export default function App() {
@@ -20,6 +23,9 @@ export default function App() {
           <Route path="/profile/:id" element={<ProfileLogic />} />
           <Route path="/list" element={<ProfileList />} />
           <Route path="/addProfile" element={<AddProfileForm />}></Route>
+          <Route path="/auth" element={<Authentication />}></Route>
+          <Route path="/signin" element={<SlotsSignIn />}></Route>
+          <Route path="/signup" element={<SignUp />}></Route>
         </Routes>
       </BrowserRouter>
     </React.StrictMode>

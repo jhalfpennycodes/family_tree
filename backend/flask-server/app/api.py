@@ -14,30 +14,37 @@ app = Flask(__name__)
 api = Api(app)
 
 
-class LoginResource(Resource):
-        def post(self):
-            email = request.json.get("email", None)
-            password = request.json.get("password", None)
-            if email != "test" or password != "test":
-                print("Entry")
-                return {"msg": "Bad username or password"}, 401
-
-
-            access_token = create_access_token(identity=email)
-            return jsonify(access_token=access_token)
-
-class RegistrationResource(Resource):
+class SignInResource(Resource):
     def post(self):
-        email = request.json.get("email")
-        password = request.json.get("password")
+        data_in = request.get_json()
+        email = data_in.get("email")
+        password = data_in.get("password")
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return {"msg": "Bad username or password"}, 401
+        if not user.verify_password(password):
+            return {"msg": "Bad username or password"}, 401
+
+        access_token = create_access_token(identity=email)
+        return {"access_token" : access_token}, 201
+
+
+class SignUpResource(Resource):
+    def post(self):
+        data_in = request.get_json()
+        email = data_in.get("email")
+        password = data_in.get("password")
         if email is None or password is None:
-            abort(400) # missing arguments
-        if User.query.filter_by(email = email).first() is not None:
-            abort(400) # existing user
-        user = User(email = email)
+            return {"message": "Provide all data."}, 400
+        if User.query.filter_by(email=email).first() is not None:
+            return {"message": "Email already registered."}, 400
+        user = User(email=email)
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()
+        return {"message": "User created successfully."}, 201
+
 
 #Lists all the family members with a particular family ID
 class ListAllFamilyMembersResource(Resource):
