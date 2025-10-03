@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Checkbox,
   Container,
@@ -11,10 +12,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
-
+import { useNavigate } from "react-router-dom";
 const LOCAL_SIGNIN_URL = import.meta.env.VITE_LOCAL_SIGNIN_URL;
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,16 +44,20 @@ export default function SignIn() {
           },
           body: JSON.stringify(formData),
         });
-        const data = await response.json();
-        if (data.access_token) {
-          console.log("This came from the backend", data.access_token);
-          login(data.access_token);
+        if (response.status === 200) {
+          const data = await response.json();
+          if (data.access_token) {
+            console.log("This came from the backend", data.access_token);
+            login(data.access_token);
+            navigate("/list");
+          }
+        } else {
+          setError("Incorrect credentials. Please try again.");
         }
       } catch (error) {
         console.log(error);
       }
     } else {
-      console.log("Enter email and password");
       setError("Please enter both email and password.");
     }
   };
@@ -111,6 +117,11 @@ export default function SignIn() {
             >
               Sign In
             </Button>
+            {error && (
+              <Alert variant="filled" severity="error">
+                {error}
+              </Alert>
+            )}
             <Link href="/signup" variant="body2">
               Don't have an account? Sign up
             </Link>
