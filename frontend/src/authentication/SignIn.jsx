@@ -10,6 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
 const LOCAL_SIGNIN_URL = import.meta.env.VITE_LOCAL_SIGNIN_URL;
 
@@ -20,6 +21,7 @@ export default function SignIn() {
   });
 
   const [error, setError] = useState("");
+  const { login } = useAuth();
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -30,17 +32,27 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(LOCAL_SIGNIN_URL, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-    } catch (error) {
-      console.log(error);
+    if (formData.email && formData.password) {
+      try {
+        const response = await fetch(LOCAL_SIGNIN_URL, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await response.json();
+        if (data.access_token) {
+          console.log("This came from the backend", data.access_token);
+          login(data.access_token);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("Enter email and password");
+      setError("Please enter both email and password.");
     }
   };
 

@@ -27,7 +27,7 @@ class SignInResource(Resource):
             return {"msg": "Bad username or password"}, 401
 
         access_token = create_access_token(identity=email)
-        return {"access_token" : access_token}, 201
+        return {"access_token" : access_token}, 200
 
 
 class SignUpResource(Resource):
