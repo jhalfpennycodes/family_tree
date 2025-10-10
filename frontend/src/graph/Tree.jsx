@@ -9,6 +9,7 @@ import {
   useEdgesState,
   useReactFlow,
 } from "@xyflow/react";
+import { useParams } from "react-router-dom";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
 import AvatarNode from "./AvatarNode";
@@ -16,6 +17,7 @@ import AddPersonNode from "./AddPersonNode";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
+const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 const elk = new ELK();
 
 const elkOptions = {
@@ -102,12 +104,14 @@ function LayoutFlow() {
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
   const hasCalledFitView = useRef(false);
-
+  const { familyId } = useParams();
   const getTree = async () => {
     try {
       const response = await fetch(
-        "https://family-tree-ibu5.onrender.com/familyTree/tree/getTree/1",
-        { method: "GET" }
+        LOCAL_SERVER_URL + `tree/getTree/${familyId}`,
+        {
+          method: "GET",
+        }
       );
       const json = await response.json();
 

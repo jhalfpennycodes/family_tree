@@ -14,11 +14,8 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar() {
   const { token, logout } = useAuth();
 
-  const navigate = useNavigate();
-
   const handleLogout = () => {
     logout();
-    navigate("/signin");
   };
 
   return (
@@ -34,26 +31,43 @@ export default function Navbar() {
         </Link>
         <Box sx={{ flexGrow: 1 }} />
         <Stack spacing={2} direction="row">
-          <Link to="/">
-            <Button variant="contained" startIcon={<InfoIcon />}>
-              Info
-            </Button>
-          </Link>
-          <Link to="/tree">
-            <Button variant="contained" startIcon={<ParkIcon />}>
-              View Tree
-            </Button>
-          </Link>
-          <Link to="/list">
-            <Button variant="contained" startIcon={<FamilyRestroomIcon />}>
-              Family Members
-            </Button>
-          </Link>
-          <Link to="/addProfile">
-            <Button variant="contained" startIcon={<PersonAddIcon />}>
-              Add Person
-            </Button>
-          </Link>
+          {!token ? (
+            <div>
+              <Stack spacing={2} direction="row">
+                <Link to="/tree">
+                  <Button variant="contained" startIcon={<ParkIcon />}>
+                    View Tree
+                  </Button>
+                </Link>
+                <Link to="/famous">
+                  <Button
+                    variant="contained"
+                    startIcon={<FamilyRestroomIcon />}
+                  >
+                    Famous Families
+                  </Button>
+                </Link>
+              </Stack>
+            </div>
+          ) : (
+            <div>
+              <Link to="/tree">
+                <Button variant="contained" startIcon={<ParkIcon />}>
+                  View My Tree
+                </Button>
+              </Link>
+              <Link to="/list">
+                <Button variant="contained" startIcon={<FamilyRestroomIcon />}>
+                  Family Members
+                </Button>
+              </Link>
+              <Link to="/addProfile">
+                <Button variant="contained" startIcon={<PersonAddIcon />}>
+                  Add Person
+                </Button>
+              </Link>
+            </div>
+          )}
           {!token ? (
             <Link to="/signin">
               <Button variant="contained" startIcon={<LoginIcon></LoginIcon>}>

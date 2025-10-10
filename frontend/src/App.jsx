@@ -5,6 +5,7 @@ import Home from "./common/Home";
 import Tree from "./graph/Tree";
 import ProfileLogic from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
+import FamousFamilyHome from "./famousFamilies/FamousFamilyHome";
 import AddProfileForm from "./profile/AddProfile";
 import Navbar from "./common/Navbar";
 import SlotsSignIn from "./authentication/SignIn";
@@ -21,23 +22,10 @@ export default function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/tree" element={<Tree />} />
-            <Route
-              path="/profile/:id"
-              element={
-                <ProtectedRoute>
-                  <ProfileLogic />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/list"
-              element={
-                <ProtectedRoute>
-                  <ProfileList />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/tree/:familyId" element={<Tree />} />
+            <Route path="/profile/:id" element={<ProfileLogic />} />
+            <Route path="/list" element={<ProfileList />} />
+            <Route path="/famous" element={<FamousFamilyHome />} />
             <Route
               path="/addProfile"
               element={

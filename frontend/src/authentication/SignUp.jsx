@@ -44,8 +44,7 @@ export default function SignUp() {
       formData.first_name &&
       formData.last_name &&
       formData.email &&
-      formData.password &&
-      formData.confirm_password
+      formData.password
     ) {
       if (formData.password !== formData.confirm_password) {
         setError("Password do not match.");
@@ -60,7 +59,6 @@ export default function SignUp() {
             body: JSON.stringify(formData),
           });
           if (response.status === 201) {
-            alert("All signed up, please log in.");
             navigate("/signin");
           } else if (response.status === 400) {
             const errorData = await response.json();

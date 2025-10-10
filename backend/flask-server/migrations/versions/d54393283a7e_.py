@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a006d8fad9b0
+Revision ID: d54393283a7e
 Revises: 
-Create Date: 2025-09-30 11:36:23.131410
+Create Date: 2025-10-10 10:56:24.309763
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a006d8fad9b0'
+revision = 'd54393283a7e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,12 +25,15 @@ def upgrade():
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=32), nullable=False),
+    sa.Column('first_name', sa.String(length=32), nullable=False),
+    sa.Column('last_name', sa.String(length=32), nullable=False),
+    sa.Column('email', sa.String(length=32), nullable=False),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
+    sa.Column('family_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_user_username'), ['username'], unique=True)
+        batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
 
     op.create_table('person',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -68,7 +71,7 @@ def downgrade():
     op.drop_table('spouse_link')
     op.drop_table('person')
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_user_username'))
+        batch_op.drop_index(batch_op.f('ix_user_email'))
 
     op.drop_table('user')
     op.drop_table('family')

@@ -10,8 +10,11 @@ spouse_link = db.Table('spouse_link',
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(32), nullable=False)
+    last_name = db.Column(db.String(32), nullable=False)
     email = db.Column(db.String(32), nullable=False, index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(128), nullable=False)
+    family_id = db.Column(db.Integer)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)

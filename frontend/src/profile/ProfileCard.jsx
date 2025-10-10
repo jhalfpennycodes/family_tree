@@ -111,7 +111,7 @@ export default function ProfileCard(props) {
             <Typography fontWeight="bold">{`${props.firstName} ${props.lastName}`}</Typography>
           }
         />
-        <CardContent disableSpacing={true}>
+        <CardContent>
           <Typography variant="body2" sx={{ mb: 0.3, color: "text.secondary" }}>
             <b>Mother:</b> {props.mother}
           </Typography>

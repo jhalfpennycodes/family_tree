@@ -33,13 +33,15 @@ class SignInResource(Resource):
 class SignUpResource(Resource):
     def post(self):
         data_in = request.get_json()
+        first_name = data_in.get("first_name")
+        last_name = data_in.get("last_name")
         email = data_in.get("email")
         password = data_in.get("password")
         if email is None or password is None:
             return {"message": "Provide all data."}, 400
         if User.query.filter_by(email=email).first() is not None:
             return {"message": "Email already registered."}, 400
-        user = User(email=email)
+        user = User(first_name=first_name, last_name=last_name, email=email)
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()
@@ -237,44 +239,44 @@ class Tree3Resource(Resource):
                 parent_store.append(person.id)
             if not person.children:
                 child_store.append(person.id)
+        if family_id > 10:
+            #Retrieve highest ID to ensure no current 'avatarNodes' clash with the creation of new 'addNode'
+            person_highest_id = Person.query.order_by(Person.id.desc()).first()
+            highest_id = person_highest_id.id
 
-        #Retrieve highest ID to ensure no current 'avatarNodes' clash with the creation of new 'addNode'
-        person_highest_id = Person.query.order_by(Person.id.desc()).first()
-        highest_id = person_highest_id.id
+            # Create "add" nodes for avatar nodes with no parents
+            for index in range(len(parent_store)):
+                nodes.append({
+                    'id': highest_id+1,
+                    'type': 'add',
+                    'data': {
+                        'id': highest_id +1,
+                        'child_id': parent_store[index]
+                    }
+                })
+                edges.append({
+                    'id': f'{highest_id+1}->{parent_store[index]}',
+                    'source': highest_id+1,
+                    'target': parent_store[index]
+                })
+                highest_id = highest_id+1
 
-        # Create "add" nodes for avatar nodes with no parents
-        for index in range(len(parent_store)):
-            nodes.append({
-                'id': highest_id+1,
-                'type': 'add',
-                'data': {
-                    'id': highest_id +1,
-                    'child_id': parent_store[index]
-                }
-            })
-            edges.append({
-                'id': f'{highest_id+1}->{parent_store[index]}',
-                'source': highest_id+1,
-                'target': parent_store[index]
-            })
-            highest_id = highest_id+1
-
-        # Create "add" nodes for avatar nodes with no children
-        for index in range(len(child_store)):
-            nodes.append({
-                'id': highest_id+1,
-                'type': 'add',
-                'data': {
-                    'id': highest_id +1,
-                    'parent_id': child_store[index]
-                }
-            })
-            edges.append({
-                'id': f'{child_store[index]}->{highest_id+1}',
-                'source': child_store[index],
-                'target': highest_id+1
-            })
-            highest_id = highest_id+1
+            # Create "add" nodes for avatar nodes with no children
+            for index in range(len(child_store)):
+                nodes.append({
+                    'id': highest_id+1,
+                    'type': 'add',
+                    'data': {
+                        'id': highest_id +1,
+                        'parent_id': child_store[index]
+                    }
+                })
+                edges.append({
+                    'id': f'{child_store[index]}->{highest_id+1}',
+                    'source': child_store[index],
+                    'target': highest_id+1
+                })
+                highest_id = highest_id+1
 
         tree_data = [{
             'nodes': nodes,

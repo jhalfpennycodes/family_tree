@@ -18,6 +18,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 
+const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+
 function BornField({ label, profileData, editable }) {
   if (!editable)
     return (
@@ -431,9 +433,7 @@ function ProfileLogic() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetch(
-          `https://family-tree-ibu5.onrender.com/familyTree/profile/${id}`
-        );
+        const response = await fetch(LOCAL_SERVER_URL + `profile/${id}`);
         const json = await response.json();
         setProfileData(json);
       } catch (error) {

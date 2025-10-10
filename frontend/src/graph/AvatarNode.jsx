@@ -1,25 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Handle, Position, useUpdateNodeInternals } from "@xyflow/react";
 import Avatar from "../common/Avatar";
-import { useEffect } from "react";
 
 const AvatarNode = ({ data }) => {
   const updateNodeInternals = useUpdateNodeInternals();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     updateNodeInternals(data.id);
   }, [data.id, updateNodeInternals]);
 
+  const handleClick = () => {
+    setIsProfileOpen((prev) => !prev);
+  };
+
   return (
     <div
       style={{
         width: 150,
-        height: 50,
         position: "relative",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}
+      onClick={handleClick}
     >
       <Avatar
         id={data.id}
@@ -31,7 +36,22 @@ const AvatarNode = ({ data }) => {
         father={data.father}
         mother={data.mother}
         profession={data.profession}
-      ></Avatar>
+      />
+
+      {/* Label underneath */}
+      {data.first_name && data.last_name && !isProfileOpen && (
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: "#4b5563", // Tailwind gray-600
+            textAlign: "center",
+          }}
+        >
+          {data.first_name} {data.last_name}
+        </div>
+      )}
+
+      {/* Handles */}
       <Handle
         type="source"
         position={Position.Bottom}

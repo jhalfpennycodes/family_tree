@@ -3,6 +3,8 @@ import { Avatar, Box, Typography, Paper, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
+const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+
 function ProfileBanner({ person }) {
   return (
     <Link to={`/profile/${person.id}`} style={{ textDecoration: "none" }}>
@@ -55,9 +57,7 @@ function ProfilesList() {
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(
-          `https://family-tree-ibu5.onrender.com/familyTree/family/1`
-        );
+        const response = await fetch(LOCAL_SERVER_URL + `family/2`);
         const json = await response.json();
         setFamilyData(json);
       } catch (error) {
