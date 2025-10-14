@@ -2,7 +2,7 @@
 # from .forms import PersonForm, AddParentForm, AddChildForm
 
 from app import app, db, api
-from app.api import ListAllFamilyMembersResource, FamilyMemberProfileResource, Tree3Resource, SignInResource, SignUpResource
+from app.api import ListAllFamilyMembersResource, FamilyMemberProfileResource, Tree3Resource, SignInResource, SignUpResource, PublicListFamilyResource, PublicTree3Resource, PublicFamilyMemberResource, PostFamilyMemberResource
 from flask import Flask, jsonify, request 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -20,6 +20,10 @@ from flask_jwt_extended import jwt_required
 
 api.add_resource(SignInResource, '/familyTree/signin')
 api.add_resource(SignUpResource, '/familyTree/signup')
-api.add_resource(ListAllFamilyMembersResource, '/familyTree/family/<int:family_id>')
+api.add_resource(PublicFamilyMemberResource, '/familyTree/publicProfile/<int:person_id>')
+api.add_resource(PublicListFamilyResource, '/familyTree/publicFamily/<int:family_id>')
+api.add_resource(PublicTree3Resource, '/familyTree/tree/getPublicTree/<int:family_id>')
+api.add_resource(ListAllFamilyMembersResource, '/familyTree/listFamily')
 api.add_resource(FamilyMemberProfileResource, '/familyTree/profile/<int:person_id>')
-api.add_resource(Tree3Resource, "/familyTree/tree/getTree/<int:family_id>")
+api.add_resource(PostFamilyMemberResource, '/familyTree/profileAdd')
+api.add_resource(Tree3Resource, "/familyTree/tree/getTree")

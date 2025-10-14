@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../authentication/AuthProvider";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Box,
@@ -21,7 +23,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import ImageUploading from "react-images-uploading";
-import { motion, AnimatePresence } from "framer-motion";
 
 function InputField({ value, onChange, label, boxLabel }) {
   return (
@@ -151,7 +152,7 @@ function LifeDescriptionField({ title, label, onChange, value }) {
   );
 }
 
-function SelectField({ label, onChange, inputValue, boxLabel }) {
+export function SelectField({ label, onChange, inputValue, boxLabel }) {
   const [selectedId, setSelectedId] = useState("");
 
   const handleChange = (e) => {
@@ -390,16 +391,25 @@ function ImageField({ onChange }) {
 }
 
 function AddProfileForm(props) {
+  const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
   const [familyData, setFamilyData] = useState();
   const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+  let navigate = useNavigate();
+  console.log("Rendering component with familyData:", familyData);
+
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(
-          `https://family-tree-ibu5.onrender.com/familyTree/family/1`
-        );
+        const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const json = await response.json();
         setFamilyData(json);
+        console.log(familyData);
       } catch (error) {
         console.error("API Error:", error);
       } finally {
@@ -433,6 +443,7 @@ function AddProfileForm(props) {
       ...prev,
       [field]: value,
     }));
+    console.log(formData);
   };
 
   const deleteArrayValue = (field, deleteIndex) => {
@@ -467,42 +478,22 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
-      fetch("https://family-tree-ibu5.onrender.com/familyTree/family/1", {
+      fetch(LOCAL_SERVER_URL + "profileAdd", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
     }
   };
 
-  return (
-    <div>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh", // full viewport height
-            width: "100vw", // full viewport width (optional)
-          }}
-        >
-          <Box
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-              width: "100vw",
-            }}
-          >
-            <CircularProgress></CircularProgress>
-          </Box>
-        </div>
-      ) : (
+  if (!loading && (!familyData || familyData.length === 0)) {
+    console.log("Hit — no family data found");
+    return (
+      <div>
         <form name="profileForm" onSubmit={handleSubmit}>
           <Box
             sx={{
@@ -544,48 +535,6 @@ function AddProfileForm(props) {
                 value={formData.dob}
                 onChange={(val) => handleChange("dob", val)}
               />
-              <SelectField
-                label="Mother"
-                boxLabel="Select Mother"
-                value={formData.mother}
-                onChange={(val) => handleChange("mother_id", val)}
-                inputValue={familyData.filter(
-                  (person) => person.gender === "Female"
-                )}
-              ></SelectField>
-              <SelectField
-                label="Father"
-                boxLabel="Select Father"
-                value={formData.father}
-                onChange={(val) => handleChange("father_id", val)}
-                inputValue={familyData.filter(
-                  (person) => person.gender === "Male"
-                )}
-              ></SelectField>
-              <MultiSelectField
-                label="Spouse(s)"
-                boxLabel="Select spouse"
-                value={formData.spouses}
-                inputData={familyData}
-                formData={formData}
-                onChange={(val, index) =>
-                  handleArrayChange("spouses", val, index)
-                }
-                onDelete={(index) => deleteArrayValue("spouses", index)}
-                field="spouses"
-              ></MultiSelectField>
-              <MultiSelectField
-                label="Children"
-                boxLabel="Select child"
-                value={formData.children}
-                inputData={familyData}
-                formData={formData}
-                onChange={(val, index) =>
-                  handleArrayChange("children", val, index)
-                }
-                onDelete={(index) => deleteArrayValue("children", index)}
-                field="children"
-              ></MultiSelectField>
               <InputField
                 label="Birth Location"
                 boxLabel="Enter birth location"
@@ -631,8 +580,8 @@ function AddProfileForm(props) {
             sx={{
               py: 5,
               display: "flex",
-              justifyContent: "center", // center horizontally
-              alignItems: "center", // center vertically
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <Button size="large" variant="contained" type="submit">
@@ -640,9 +589,175 @@ function AddProfileForm(props) {
             </Button>
           </Box>
         </form>
-      )}
-    </div>
-  );
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh", // full viewport height
+              width: "100vw", // full viewport width (optional)
+            }}
+          >
+            <Box
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100vh",
+                width: "100vw",
+              }}
+            >
+              <CircularProgress></CircularProgress>
+            </Box>
+          </div>
+        ) : (
+          <form name="profileForm" onSubmit={handleSubmit}>
+            <Box
+              sx={{
+                maxWidth: 1200,
+                mx: "auto",
+                p: 3,
+                position: "relative",
+                fontFamily: "Roboto, sans-serif",
+              }}
+            >
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+                Create Profile
+              </Typography>
+              <ImageField onChange={handleChange}></ImageField>
+              <h2>General Information</h2>
+              <Box sx={{ flex: 1, minWidth: 300 }}>
+                <RequiredInputField
+                  name="firstName"
+                  label="First Name"
+                  boxLabel="Enter first name"
+                  value={formData.first_name}
+                  onChange={(val) => handleChange("first_name", val)}
+                />
+                <RequiredInputField
+                  label="Last Name"
+                  boxLabel="Enter last name"
+                  value={formData.last_name}
+                  onChange={(val) => handleChange("last_name", val)}
+                />
+                <GenderSelectField
+                  name="gender"
+                  label="Gender"
+                  boxLabel="Select gender"
+                  value={formData.gender}
+                  onChange={(val) => handleChange("gender", val)}
+                ></GenderSelectField>
+                <DateField
+                  label="Born"
+                  value={formData.dob}
+                  onChange={(val) => handleChange("dob", val)}
+                />
+                <SelectField
+                  label="Mother"
+                  boxLabel="Select Mother"
+                  value={formData.mother}
+                  onChange={(val) => handleChange("mother_id", val)}
+                  inputValue={familyData.filter(
+                    (person) => person.gender === "Female"
+                  )}
+                ></SelectField>
+                <SelectField
+                  label="Father"
+                  boxLabel="Select Father"
+                  value={formData.father}
+                  onChange={(val) => handleChange("father_id", val)}
+                  inputValue={familyData.filter(
+                    (person) => person.gender === "Male"
+                  )}
+                ></SelectField>
+                <MultiSelectField
+                  label="Spouse(s)"
+                  boxLabel="Select spouse"
+                  value={formData.spouses}
+                  inputData={familyData}
+                  formData={formData}
+                  onChange={(val, index) =>
+                    handleArrayChange("spouses", val, index)
+                  }
+                  onDelete={(index) => deleteArrayValue("spouses", index)}
+                  field="spouses"
+                ></MultiSelectField>
+                <MultiSelectField
+                  label="Children"
+                  boxLabel="Select child"
+                  value={formData.children}
+                  inputData={familyData}
+                  formData={formData}
+                  onChange={(val, index) =>
+                    handleArrayChange("children", val, index)
+                  }
+                  onDelete={(index) => deleteArrayValue("children", index)}
+                  field="children"
+                ></MultiSelectField>
+                <InputField
+                  label="Birth Location"
+                  boxLabel="Enter birth location"
+                  value={formData.birth_location}
+                  onChange={(val) => handleChange("birth_location", val)}
+                />
+                <InputField
+                  label="Profession"
+                  boxLabel="Enter profession"
+                  value={formData.profession}
+                  onChange={(val) => handleChange("profession", val)}
+                />
+              </Box>
+              <Box mb={2} sx={{ width: "100%" }}>
+                <h2>Life Description</h2>
+              </Box>
+              <LifeDescriptionField
+                title="Early Life"
+                label="Write about the early life of this person..."
+                value={formData.early_life_description}
+                onChange={(val) => handleChange("early_life_description", val)}
+              />
+              <LifeDescriptionField
+                title="Young Adult Life"
+                label="Write about the teenage years of this person..."
+                value={formData.young_adult_description}
+                onChange={(val) => handleChange("young_adult_description", val)}
+              />
+              <LifeDescriptionField
+                title="Adult Life"
+                label="Write about the adult life of this person..."
+                value={formData.adult_life_description}
+                onChange={(val) => handleChange("adult_life_description", val)}
+              />
+              <LifeDescriptionField
+                title="Late Life"
+                label="Write about the later year of life of this person..."
+                value={formData.late_life_description}
+                onChange={(val) => handleChange("late_life_description", val)}
+              />
+            </Box>
+            <Box
+              sx={{
+                py: 5,
+                display: "flex",
+                justifyContent: "center", // center horizontally
+                alignItems: "center", // center vertically
+              }}
+            >
+              <Button size="large" variant="contained" type="submit">
+                Submit
+              </Button>
+            </Box>
+          </form>
+        )}
+      </div>
+    );
+  }
 }
 
 export default AddProfileForm;

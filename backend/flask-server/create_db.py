@@ -1,12 +1,12 @@
 from app import app, db
-from app.models import Person
+from app.models import Person, User
 import json
 from datetime import datetime
 
-path = "/Users/jkrip/Desktop/family_tree/backend/flask-server/json_families/"
 
 def create_dummy_data(family):
   try:
+    path = "/Users/jkrip/Desktop/family_tree/backend/flask-server/json_families/"
     with open(path + family) as f:
       json_data = json.load(f)
     for person_data in json_data:
@@ -88,6 +88,30 @@ def link_windsor_spouses():
       print("Windsor spouses failed")
       print("Error: ", e)
 
+def create_dummy_users():
+  try:
+    path = "/Users/jkrip/Desktop/family_tree/backend/flask-server/json_families/user_mock.json"
+    with open(path) as f:
+      json_data = json.load(f)
+    for user_data in json_data:
+      user = User(
+        id = user_data["id"],
+        first_name = user_data["first_name"],
+        last_name = user_data["last_name"],
+        email = user_data["email"],
+        password_hash = "$6$rounds=656000$bsyw6Zg8tJKqaWZF$n/fqP0Gppc.SrRbF0HIAyH0D7kBbM5JdUIiuX8owf/6qtcsgo7QQSgwhGRaG4l.j1lbB0XYU52B0riIfxOTK9/",
+        family_id = user_data["family_id"]
+      )
+      db.session.add(user)
+    db.session.commit()
+  except Exception as e:
+    print(f"Failed to populate with user_mock file.")
+    print("Error: ", e)
+
+    
+      
+
+
 if __name__ == '__main__':
     with app.app_context():
         try:
@@ -96,7 +120,7 @@ if __name__ == '__main__':
           create_dummy_data("windsor.json")
           link_windsor_spouses()
           create_dummy_data("kardashin.json")
-          
+          create_dummy_users()
           print("Dummy data added successfully!")
         except Exception as e:
           print("Dummy data failed!")

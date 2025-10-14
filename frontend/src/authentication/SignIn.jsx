@@ -1,9 +1,7 @@
 import {
   Alert,
   Button,
-  Checkbox,
   Container,
-  FormControlLabel,
   Link,
   Paper,
   TextField,
@@ -49,7 +47,7 @@ export default function SignIn() {
           if (data.access_token) {
             console.log("This came from the backend", data.access_token);
             login(data.access_token);
-            navigate("/list");
+            navigate("/listFamily");
           }
         } else {
           setError("Incorrect credentials. Please try again.");

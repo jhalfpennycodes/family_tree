@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Avatar, Box, Typography, Paper, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAuth } from "../authentication/AuthProvider";
+import NoProfile from "../common/NoProfile";
+import { useNavigate } from "react-router-dom";
 
 const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 
@@ -54,10 +57,26 @@ function ProfileBanner({ person }) {
 function ProfilesList() {
   const [familyData, setFamilyData] = useState();
   const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `family/2`);
+        const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.status == 401 || response.status == 403) {
+          const e = await response.json();
+          if (e.error == "token_expired") {
+            navigate("/sessionExpired");
+            return;
+          }
+          navigate("/forbidden");
+          return;
+        }
         const json = await response.json();
         setFamilyData(json);
       } catch (error) {
@@ -84,7 +103,6 @@ function ProfilesList() {
     );
   }
   if (!familyData) return <div>Error loading data</div>;
-
   if (Array.isArray(familyData) && familyData.length > 0) {
     return (
       <Box
@@ -108,6 +126,8 @@ function ProfilesList() {
         </Grid>
       </Box>
     );
+  } else {
+    return <NoProfile />;
   }
 }
 

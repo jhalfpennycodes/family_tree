@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../authentication/AuthProvider";
-
+import { useParams, Link } from "react-router-dom";
 import {
   Avatar,
   Box,
@@ -11,7 +9,6 @@ import {
   ImageListItem,
   Button,
   Stack,
-  Slide,
 } from "@mui/material";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -20,7 +17,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { SelectField } from "./AddProfile";
 
 const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 
@@ -45,7 +41,7 @@ function BornField({ label, profileData, editable }) {
     );
 }
 
-function ProfileField({ label, value, editable }) {
+function ProfileTextField({ label, value, editable }) {
   return (
     <Box
       sx={{
@@ -97,11 +93,13 @@ function ProfileSelectField({
           {label}
         </Typography>
         {editable ? (
-          <SelectField
-            label={label}
-            inputValue={profileData}
-            boxLabel={field}
-          ></SelectField>
+          <select name="selectMother">
+            {inputData.map((person) => (
+              <option key={person.id}>
+                {person.first_name} {person.last_name}
+              </option>
+            ))}
+          </select>
         ) : (
           <Box display="flex" alignItems="center">
             <Typography>Unknown</Typography>
@@ -127,7 +125,7 @@ function ProfileSelectField({
       </Typography>
       {editable ? (
         <select name="selectMother">
-          {(inputData || []).map((person) => (
+          {inputData.map((person) => (
             <option key={person.id}>
               {person.first_name} {person.last_name}
             </option>
@@ -176,7 +174,6 @@ function ProfileMultiSelectField({
   };
 
   const removeSpouse = (index) => {
-    console.log(index);
     onDelete(index);
   };
 
@@ -201,7 +198,7 @@ function ProfileMultiSelectField({
       </Typography>
       {editable ? (
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
-          {(formData[field] || []).map((p, index) => (
+          {formData[field].map((p, index) => (
             <Box key={index} display="flex" alignItems="center" mb={2}>
               <Box sx={{ width: 200 }}>
                 <FormControl fullWidth>
@@ -219,7 +216,7 @@ function ProfileMultiSelectField({
                     <MenuItem value={0} key={0}>
                       None
                     </MenuItem>
-                    {(inputData || []).map((person, personIndex) => (
+                    {inputData.map((person, personIndex) => (
                       <MenuItem key={personIndex} value={person.id}>
                         {person.first_name} {person.last_name}
                       </MenuItem>
@@ -338,58 +335,20 @@ function LifeDescriptionSection({ value, editable }) {
 }
 
 function ProfilePageLayout({ profileData }) {
-  const [editable, setEditable] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [familyData, setFamilyData] = useState();
-  const { token } = useAuth();
-  console.log(profileData);
+
   const handleClick = (event) => {
     if (event) {
-      console.log("Hit the menu button for OPEN");
       setAnchorEl(event.currentTarget);
     }
   };
 
   const handleClose = () => {
-    console.log("Hit the menu button for CLOSE");
     setAnchorEl(null);
   };
 
-  const deleteProfile = () => {
-    const shouldRemove = confirm(
-      "Are you sure you want to delete this profile?"
-    );
-    if (shouldRemove) {
-      console.log("About to send DELETE request...");
-      fetch(`http://127.0.0.1:5000/familyTree/profile/${profileData.id}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      });
-    }
-  };
-
-  const handleEdit = async () => {
-    console.log("Hit edit button");
-    setEditable(true);
-    try {
-      const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const json = await response.json();
-      console.log("Initial data: ", json);
-      setFamilyData(json);
-    } catch (error) {
-      console.error("API Error:", error);
-    }
-  };
-  console.log(familyData);
   return (
     <Box
       sx={{
@@ -416,58 +375,6 @@ function ProfilePageLayout({ profileData }) {
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
           {profileData.first_name} {profileData.last_name}
         </Typography>
-        {editable ? (
-          <Button
-            onClick={() => {
-              setEditable(!editable);
-            }}
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              boxShadow: 1,
-            }}
-          >
-            Done
-          </Button>
-        ) : (
-          <IconButton
-            aria-label="more options"
-            aria-controls={open ? "profile-menu" : undefined}
-            aria-haspopup="true"
-            onClick={handleClick}
-            size="large"
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              borderRadius: "50%",
-              boxShadow: 2,
-            }}
-          >
-            <MoreHorizIcon />
-          </IconButton>
-        )}
-
-        <Menu
-          id="profile-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={handleClose}>
-            <EditIcon
-              onClick={() => {
-                handleEdit();
-              }}
-            />
-          </MenuItem>
-          <MenuItem onClick={handleClose}>
-            <DeleteIcon onClick={deleteProfile} />
-          </MenuItem>
-        </Menu>
       </Box>
 
       <h2>General Inforamtion</h2>
@@ -479,103 +386,54 @@ function ProfilePageLayout({ profileData }) {
           <BornField
             label="Born"
             profileData={profileData.dob ? profileData.dob : "Unable to load"}
-            editable={editable}
           />
           <ProfileSelectField
             label="Mother"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
             inputData={familyData}
             field="mother"
           />
           <ProfileSelectField
             label="Father"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
             inputData={familyData}
             field="father"
           />
-          {/* <ProfileMultiSelectField
+          <ProfileMultiSelectField
             label="Spouse(s)"
             inputData={profileData}
-            editable={editable}
             field="spouses"
-          ></ProfileMultiSelectField> */}
-          {/* <ProfileMultiSelectField
+          ></ProfileMultiSelectField>
+          <ProfileMultiSelectField
             label="Children"
             inputData={profileData}
-            editable={editable}
             field="children"
-          ></ProfileMultiSelectField> */}
+          ></ProfileMultiSelectField>
 
-          <ProfileField
+          <ProfileTextField
             label="Birth Location"
-            value={profileData.birth_location || "London, UK"}
-            editable={editable}
+            value={profileData.birth_location || "Not provided"}
           />
-          <ProfileField
+          <ProfileTextField
             label="Profession"
-            value={profileData.profession || "Philanthropist"}
-            editable={editable}
+            value={profileData.profession || "Not provided"}
           />
         </Box>
-        {/* Dynamic wrapping photo album */}
-        {/* <ImageList
-          cols={2}
-          gap={4}
-          sx={{
-            borderRadius: 1,
-            boxShadow: 5,
-            bgcolor: "background.paper",
-            maxWidth: 500,
-            maxHeight: 550,
-            width: "100%",
-          }}
-        > */}
-        {/* {rockerfellers.map((item) => (
-            <ImageListItem key={item.id} sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <img
-                src={item.imgUrl}
-                alt={item.name}
-                loading="lazy"
-                width={"100%"}
-                height={"auto"}
-              />
-            </ImageListItem>
-          ))}
-        </ImageList> */}
-        <LifeDescriptionSection
-          value={profileData.lifeDescription}
-          editable={editable}
-        />
+        <LifeDescriptionSection value={profileData.lifeDescription} />
       </Box>
     </Box>
   );
 }
 
-function ProfilePage() {
+function PublicProfilePage() {
   const { id } = useParams();
-  const { token } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
 
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `profile/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("Reponse: ", response.status);
-
-        if (response.status == 401) {
-          console.log("FROBIDDEN");
-          navigate("/forbidden");
-          return;
-        }
+        const response = await fetch(LOCAL_SERVER_URL + `publicProfile/${id}`);
         const json = await response.json();
         setProfileData(json);
       } catch (error) {
@@ -607,4 +465,4 @@ function ProfilePage() {
   return <ProfilePageLayout profileData={profileData[0]} />;
 }
 
-export default ProfilePage;
+export default PublicProfilePage;

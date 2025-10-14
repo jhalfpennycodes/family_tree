@@ -20,7 +20,7 @@ const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 
 function ProfileBanner({ person }) {
   return (
-    <Link to={`/profile/${person.id}`} style={{ textDecoration: "none" }}>
+    <Link to={`/publicProfile/${person.id}`} style={{ textDecoration: "none" }}>
       <Paper
         elevation={3}
         sx={{
@@ -120,7 +120,7 @@ function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
     const getFamily = async () => {
       try {
         const response = await fetch(
-          LOCAL_SERVER_URL + `family/${selectedFamily}`
+          LOCAL_SERVER_URL + `publicFamily/${selectedFamily}`
         );
         const json = await response.json();
         setFamilyData(json);
@@ -158,7 +158,7 @@ function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
 function ViewTree({ selectedFamily }) {
   return (
     <Link
-      to={selectedFamily ? `/tree/${selectedFamily}` : "#"}
+      to={selectedFamily ? `/publicTree/${selectedFamily}` : "#"}
       style={{ pointerEvents: selectedFamily ? "auto" : "none" }}
     >
       <Button
@@ -172,7 +172,7 @@ function ViewTree({ selectedFamily }) {
   );
 }
 
-export default function FamousFamilyHome() {
+export default function PublicFamilyList() {
   const [familyData, setFamilyData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [selectedFamily, setSelectedFamily] = React.useState("");

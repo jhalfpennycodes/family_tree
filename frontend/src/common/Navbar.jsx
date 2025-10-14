@@ -9,11 +9,9 @@ import { Link } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import { useAuth } from "../authentication/AuthProvider";
-import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { token, logout } = useAuth();
-
   const handleLogout = () => {
     logout();
   };
@@ -34,12 +32,12 @@ export default function Navbar() {
           {!token ? (
             <div>
               <Stack spacing={2} direction="row">
-                <Link to="/tree">
+                <Link to="/publicTree/0">
                   <Button variant="contained" startIcon={<ParkIcon />}>
                     View Tree
                   </Button>
                 </Link>
-                <Link to="/famous">
+                <Link to="/publicFamilies">
                   <Button
                     variant="contained"
                     startIcon={<FamilyRestroomIcon />}
@@ -51,21 +49,26 @@ export default function Navbar() {
             </div>
           ) : (
             <div>
-              <Link to="/tree">
-                <Button variant="contained" startIcon={<ParkIcon />}>
-                  View My Tree
-                </Button>
-              </Link>
-              <Link to="/list">
-                <Button variant="contained" startIcon={<FamilyRestroomIcon />}>
-                  Family Members
-                </Button>
-              </Link>
-              <Link to="/addProfile">
-                <Button variant="contained" startIcon={<PersonAddIcon />}>
-                  Add Person
-                </Button>
-              </Link>
+              <Stack spacing={2} direction="row">
+                <Link to="/tree">
+                  <Button variant="contained" startIcon={<ParkIcon />}>
+                    View My Tree
+                  </Button>
+                </Link>
+                <Link to="/listFamily">
+                  <Button
+                    variant="contained"
+                    startIcon={<FamilyRestroomIcon />}
+                  >
+                    Family Members
+                  </Button>
+                </Link>
+                <Link to="/addProfile">
+                  <Button variant="contained" startIcon={<PersonAddIcon />}>
+                    Add Person
+                  </Button>
+                </Link>
+              </Stack>
             </div>
           )}
           {!token ? (
@@ -75,7 +78,7 @@ export default function Navbar() {
               </Button>
             </Link>
           ) : (
-            <Link onClick={handleLogout}>
+            <Link onClick={handleLogout} to="/">
               <Button variant="contained" startIcon={<LogoutIcon />}>
                 Sign out
               </Button>

@@ -1,89 +1,119 @@
-from app import db
-from flask import Flask, request, jsonify, abort
-from flask_restful import Resource, Api
-from flask_jwt_extended import create_access_token
+from app import db, jwt
+from flask_restful import Resource
+from flask import request, jsonify, abort
+from flask_jwt_extended import (jwt_required, create_access_token,
+    get_jwt_identity
+)
 from app.models import Person,User
-from sqlalchemy.orm import joinedload
-from datetime import datetime
 from dateutil.parser import isoparse
+from app.api_functions.get_functions import get_list_family, get_tree, get_public_tree, get_family_member
+
 import os
 import re
 
+# Register error handlers using the correct signature
+@jwt.expired_token_loader
+def my_expired_token_callback(jwt_header, jwt_payload):
+    return {
+        'error': 'token_expired',
+        'message': 'The token has expired'
+    }, 401
 
-app = Flask(__name__)
-api = Api(app)
+@jwt.invalid_token_loader
+def my_invalid_token_callback(error_string):
+    return {
+        'error': 'token_expired',
+        'message': 'The token has expired'
+    }, 401
+
+@jwt.unauthorized_loader
+def my_unauthorized_callback(error_string):
+    return {
+        'error': 'token_expired',
+        'message': 'The token has expired'
+    }, 401
+
+# HELPER FUNCTIONS
+def check_family_id(family_id):
+    user = User.query.filter_by(email=get_jwt_identity()).first()
+    if user.family_id != family_id:
+        return False
+    return True
 
 
-class SignInResource(Resource):
-    def post(self):
-        data_in = request.get_json()
-        email = data_in.get("email")
-        password = data_in.get("password")
+# PUBLIC RESOURCES
+class PublicListFamilyResource(Resource):
+    def get(self, family_id):
+        if family_id < 10:
+            return get_list_family(family_id), 200
+        else:
+            return 403
         
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            return {"msg": "Bad username or password"}, 401
-        if not user.verify_password(password):
-            return {"msg": "Bad username or password"}, 401
+class PublicTree3Resource(Resource):
+    def get(self, family_id):
+        if family_id < 10:
+            return get_public_tree(family_id=family_id)
+        else:
+            return 403
 
-        access_token = create_access_token(identity=email)
-        return {"access_token" : access_token}, 200
-
-
-class SignUpResource(Resource):
-    def post(self):
-        data_in = request.get_json()
-        first_name = data_in.get("first_name")
-        last_name = data_in.get("last_name")
-        email = data_in.get("email")
-        password = data_in.get("password")
-        if email is None or password is None:
-            return {"message": "Provide all data."}, 400
-        if User.query.filter_by(email=email).first() is not None:
-            return {"message": "Email already registered."}, 400
-        user = User(first_name=first_name, last_name=last_name, email=email)
-        user.hash_password(password)
-        db.session.add(user)
-        db.session.commit()
-        return {"message": "User created successfully."}, 201
+class PublicFamilyMemberResource(Resource):
+    def get(self, person_id):
+        person = Person.query.filter_by(id=person_id).first()
+        if person.family_id > 10:
+            return 401
+        return get_family_member(person_id=person_id)
 
 
+
+# AUTHORIZATION RESOURCES
 #Lists all the family members with a particular family ID
 class ListAllFamilyMembersResource(Resource):
-    def get(self, family_id):
-        family = Person.query.options(
-            joinedload(Person.mother),
-            joinedload(Person.father),
-            joinedload(Person.children_from_mother),
-            joinedload(Person.children_from_father)
-        ).filter_by(family_id=family_id).all()
-        
-        result = []
-        for person in family:
-            children = (person.children_from_mother or []) + (person.children_from_father or [])
-            children_data = [{
-                'id': child.id,
-                'first_name': child.first_name,
-                'last_name': child.last_name,
-                'gender': child.gender
-            } for child in children]
+    @jwt_required()
+    def get(self):
+        user = User.query.filter_by(email=get_jwt_identity()).first()
+        print(get_list_family(family_id=user.family_id))
+        return get_list_family(family_id=user.family_id)
 
-            result.append({
-                'id': person.id,
-                'first_name': person.first_name,
-                'last_name': person.last_name,
-                'gender': person.gender,
-                'dob':  person.dob.strftime('%m/%d/%Y'),
-                'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
-                'father': f'{person.father.first_name} {person.father.last_name}' if person.father else None,
-                'children': children_data,
-                'profession': person.profession,
-                'avatar_img': person.avatar_img,
-            })
-
-        return result
+#Converts data into correct fromat for avatar nodes and computes the edges between each person
+class Tree3Resource(Resource):
+    @jwt_required()
+    def get(self):
+        user = User.query.filter_by(email=get_jwt_identity()).first()
+        return get_tree(family_id=user.family_id)
     
-    def post(self, family_id):
+class FamilyMemberProfileResource(Resource):
+    @jwt_required()
+    def get(self, person_id):
+        user = User.query.filter_by(email=get_jwt_identity()).first()
+        person = Person.query.filter_by(id=person_id).first()
+        if not user.family_id == person.family_id:
+            abort(403)
+        return get_family_member(person_id=person_id)
+    
+    def delete(self, person_id):
+        person = Person.query.get(person_id)
+        if person:
+            #If current person is a parent then set their childrens mother or father IDs to null then delete current person
+            if person.children_from_mother:
+                for child in person.children_from_mother:
+                    child.mother_id = None
+            if person.children_from_father:
+                for child in person.children_from_father:
+                    child.father_id = None
+            db.session.delete(person)
+            db.session.commit()
+            return f'Person {person.id} ({person.first_name} {person.last_name}), deleted successfully', 200
+        else:
+            return f'Person with ID {person_id} does not exist'
+
+class PostFamilyMemberResource(Resource):
+    @jwt_required()
+    def post(self):
+        print("Hit")
+        user = User.query.filter_by(email=get_jwt_identity()).first()
+        family_id = user.family_id
+        print(user)
+        print(user.family_id)
         person_data = request.get_json()
         if not person_data:
             return jsonify({'error': 'Invalid or missing JSON'}), 400
@@ -105,30 +135,31 @@ class ListAllFamilyMembersResource(Resource):
 
         #Parse string date to iso format
         dob = isoparse(person_data['dob'])
+        if person_data['avatar_img']:
+            #Store image upload on server and then create string path to upload to database
+            avatar_image_data = person_data['avatar_img']
+            person_highest_id = Person.query.order_by(Person.id.desc()).first()
+            highest_id = person_highest_id.id
 
-        #Store image upload on server and then create string path to upload to database
-        avatar_image_data = person_data['avatar_img']
-        person_highest_id = Person.query.order_by(Person.id.desc()).first()
-        highest_id = person_highest_id.id
+            #Extract the header from the image data
+            match = re.match(r"data:image/(?P<ext>[^;]+);base64,(?P<data>.+)", avatar_image_data)
+            if not match:
+                raise ValueError("Invalid image data URI format")
 
-        #Extract the header from the image data
-        match = re.match(r"data:image/(?P<ext>[^;]+);base64,(?P<data>.+)", avatar_image_data)
-        if not match:
-            raise ValueError("Invalid image data URI format")
+            #Extract the image file type
+            ext = match.group("ext")
 
-        #Extract the image file type
-        ext = match.group("ext")
+            #Extract the image base64 data
+            base64_data = match.group("data")
 
-        #Extract the image base64 data
-        base64_data = match.group("data")
-
-        #Extract the file path and append the file type to the path
-        avatar_image_file_path = f"{os.path.abspath(os.getcwd())}/app/static/uploads/avatar_img_profile_{highest_id+1}.{ext}"
-        with open(avatar_image_file_path, "w") as f:
-            f.write(avatar_image_data)
-
+            #Extract the file path and append the file type to the path
+            avatar_image_file_path = f"{os.path.abspath(os.getcwd())}/app/static/uploads/avatar_img_profile_{highest_id+1}.{ext}"
+            with open(avatar_image_file_path, "w") as f:
+                f.write(avatar_image_data)
+        else:
+            avatar_image_file_path = None
         new_person = Person(
-            family_id= family_id,
+            family_id = family_id,
             first_name = person_data['first_name'],
             last_name = person_data['last_name'],
             gender = person_data['gender'],
@@ -185,205 +216,36 @@ class ListAllFamilyMembersResource(Resource):
 
         return 200
 
-#Converts data into correct fromat for avatar nodes and computes the edges between each person
-class Tree3Resource(Resource):
-    def get(self, family_id):
-        family = Person.query.options(
-            joinedload(Person.mother),
-            joinedload(Person.father),
-        ).filter_by(family_id=family_id).all()
-        nodes = []
-        edges = []
-        parent_store = []
-        child_store = []
-        pattern = r'https?://\S+|www\.\S+'
-        for person in family:
-            if not person.avatar_img:
-                avatar_img = None
-            elif re.findall(pattern, person.avatar_img):
-                re.findall(pattern, person.avatar_img)
-                avatar_img = person.avatar_img
-            else:
-                avatar_image_file_path = person.avatar_img
-                f = open(avatar_image_file_path)
-                avatar_img = f.read()
-                
-            nodes.append({
-                'id': person.id,
-                'type': 'avatar',
-                'data': {
-                    'id': person.id,
-                    'avatar_img': avatar_img,
-                    'first_name': person.first_name,
-                    'last_name': person.last_name,
-                    'gender': person.gender,
-                    'dob': person.dob.strftime('%m/%d/%Y'),
-                    'mother': f'{person.mother.first_name} {person.mother.last_name}' if person.mother else None,
-                'father': f'{person.father.first_name} {person.father.last_name}' if person.father else None,
-                    'profession': person.profession
-                    } 
-            })
-            if person.father_id:
-                edges.append({
-                    'id': f'{person.father_id}->{person.id}',
-                    'source': person.father_id,
-                    'target': person.id
-                })
-            if person.mother_id:
-                edges.append({
-                    'id': f'{person.mother_id}->{person.id}',
-                    'source': person.mother_id,
-                    'target': person.id
-                })
-            if not person.mother and not person.father:
-                parent_store.append(person.id)
-            if not person.children:
-                child_store.append(person.id)
-        if family_id > 10:
-            #Retrieve highest ID to ensure no current 'avatarNodes' clash with the creation of new 'addNode'
-            person_highest_id = Person.query.order_by(Person.id.desc()).first()
-            highest_id = person_highest_id.id
+# AUTHENTICATION RESOURCES
+class SignInResource(Resource):
+    def post(self):
+        data_in = request.get_json()
+        email = data_in.get("email")
+        password = data_in.get("password")
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return {"msg": "Bad username or password"}, 401
+        if not user.verify_password(password):
+            return {"msg": "Bad username or password"}, 401
 
-            # Create "add" nodes for avatar nodes with no parents
-            for index in range(len(parent_store)):
-                nodes.append({
-                    'id': highest_id+1,
-                    'type': 'add',
-                    'data': {
-                        'id': highest_id +1,
-                        'child_id': parent_store[index]
-                    }
-                })
-                edges.append({
-                    'id': f'{highest_id+1}->{parent_store[index]}',
-                    'source': highest_id+1,
-                    'target': parent_store[index]
-                })
-                highest_id = highest_id+1
+        access_token = create_access_token(identity=email)
+        return {"access_token" : access_token}, 200
 
-            # Create "add" nodes for avatar nodes with no children
-            for index in range(len(child_store)):
-                nodes.append({
-                    'id': highest_id+1,
-                    'type': 'add',
-                    'data': {
-                        'id': highest_id +1,
-                        'parent_id': child_store[index]
-                    }
-                })
-                edges.append({
-                    'id': f'{child_store[index]}->{highest_id+1}',
-                    'source': child_store[index],
-                    'target': highest_id+1
-                })
-                highest_id = highest_id+1
-
-        tree_data = [{
-            'nodes': nodes,
-            'edges': edges
-        }]
-        return tree_data
-    
-class FamilyMemberProfileResource(Resource):
-    def get(self, person_id):
-        person = Person.query.options(
-            joinedload(Person.mother),
-            joinedload(Person.father),
-            joinedload(Person.children_from_mother),
-            joinedload(Person.children_from_father)
-        ).filter_by(id=person_id).first()
-        if not person:
-            return "Person not found, please try again with a valid ID"
-        result = []
-        dob = person.dob.strftime("%Y/%m/%d")
-
-        pattern = r'https?://\S+|www\.\S+'
-        if not person.avatar_img:
-            avatar_img = None
-        elif re.findall(pattern, person.avatar_img):
-            re.findall(pattern, person.avatar_img)
-            avatar_img = person.avatar_img
-        else:
-            avatar_image_file_path = person.avatar_img
-            f = open(avatar_image_file_path)
-            avatar_img = f.read()
-
-        result.append({
-            'id': person.id,
-            'first_name': person.first_name,
-            'last_name': person.last_name,
-            'gender': person.gender,
-            'dob': dob,
-            'mother': {
-                    'id': person.mother.id,
-                    'first_name': person.mother.first_name,
-                    'last_name': person.mother.last_name,
-                    'avatar_img': person.mother.avatar_img,
-                }if person.mother else {'id': None},
-            'father': {
-                    'id': person.father.id,
-                    'first_name': person.father.first_name,
-                    'last_name': person.father.last_name,
-                    'avatar_img': person.father.avatar_img,
-                } if person.father else {'id': None},
-            'spouses': [
-                {
-                    'id': partner.id,
-                    'first_name': partner.first_name,
-                    'last_name': partner.last_name,
-                    'avatar_img': partner.avatar_img,
-                } for partner in person.partners
-            ],
-            'children': [
-                {
-                    'id': child.id,
-                    'first_name': child.first_name,
-                    'last_name': child.last_name,
-                    'avatar_img': child.avatar_img,
-                } for child in person.children
-            ],
-            'siblings' : [
-                {
-                    'direct_siblings': [
-                        {
-                            'id': sibling.id,
-                            'first_name': sibling.first_name,
-                            'last_name': sibling.last_name,
-                        } for sibling in person.siblings["direct_siblings"]
-                    ],
-                    'mothers_side_siblings': [
-                        {
-                            'id': sibling.id,
-                            'first_name': sibling.first_name,
-                            'last_name': sibling.last_name,
-                        } for sibling in person.siblings["mothers_side_siblings"]
-                    ],
-                    'father_side_siblings':[
-                        {
-                            'id': sibling.id,
-                            'first_name': sibling.first_name,
-                            'last_name': sibling.last_name,
-                        } for sibling in person.siblings["fathers_side_siblings"]
-                    ]
-                }
-            ],
-            'avatar_img': avatar_img
-            }
-        )
-        return result
-    
-    def delete(self, person_id):
-        person = Person.query.get(person_id)
-        if person:
-            #If current person is a parent then set their childrens mother or father IDs to null then delete current person
-            if person.children_from_mother:
-                for child in person.children_from_mother:
-                    child.mother_id = None
-            if person.children_from_father:
-                for child in person.children_from_father:
-                    child.father_id = None
-            db.session.delete(person)
-            db.session.commit()
-            return f'Person {person.id} ({person.first_name} {person.last_name}), deleted successfully', 200
-        else:
-            return f'Person with ID {person_id} does not exist'
+class SignUpResource(Resource):
+    def post(self):
+        data_in = request.get_json()
+        first_name = data_in.get("first_name")
+        last_name = data_in.get("last_name")
+        email = data_in.get("email")
+        password = data_in.get("password")
+        if email is None or password is None:
+            return {"message": "Provide all data."}, 400
+        if User.query.filter_by(email=email).first() is not None:
+            return {"message": "Email already registered."}, 400
+        last_user = User.query.order_by(User.id.desc()).first()
+        user = User(first_name=first_name, last_name=last_name, email=email, family_id=last_user.family_id+1)
+        user.hash_password(password)
+        db.session.add(user)
+        db.session.commit()
+        return {"message": "User created successfully."}, 201

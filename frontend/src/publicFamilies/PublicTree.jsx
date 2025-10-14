@@ -9,11 +9,11 @@ import {
   useEdgesState,
   useReactFlow,
 } from "@xyflow/react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
-import AvatarNode from "./AvatarNode";
-import AddPersonNode from "./AddPersonNode";
+import AvatarNode from "../graph/AvatarNode";
+import AddPersonNode from "../graph/AddPersonNode";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useAuth } from "../authentication/AuthProvider";
@@ -105,20 +105,16 @@ function LayoutFlow() {
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
   const hasCalledFitView = useRef(false);
+  const { familyId } = useParams();
   const { token } = useAuth();
-  const navigate = useNavigate();
   const getTree = async () => {
     try {
-      const response = await fetch(`${LOCAL_SERVER_URL}tree/getTree`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.status == 401 || response.status == 403) {
-        navigate("/forbidden");
-        return;
-      }
+      const response = await fetch(
+        `${LOCAL_SERVER_URL}tree/getPublicTree/${familyId}`,
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Could not complete GET request");
@@ -242,7 +238,7 @@ function LayoutFlow() {
   );
 }
 
-function Tree() {
+function PublicTree() {
   return (
     <ReactFlowProvider>
       <LayoutFlow />
@@ -250,4 +246,4 @@ function Tree() {
   );
 }
 
-export default Tree;
+export default PublicTree;

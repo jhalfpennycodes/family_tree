@@ -14,8 +14,10 @@ class User(db.Model):
     last_name = db.Column(db.String(32), nullable=False)
     email = db.Column(db.String(32), nullable=False, index=True, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
-    family_id = db.Column(db.Integer)
-
+    family_id = db.Column(db.Integer, db.ForeignKey('family.id'), nullable=True)
+    family = db.relationship('Family', backref='users')
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=True)  # ADD THIS
+    person = db.relationship('Person', backref='user', uselist=False)
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
