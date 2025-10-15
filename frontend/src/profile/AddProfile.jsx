@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../authentication/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Avatar,
   Box,
+  Fab,
   Typography,
   TextField,
   Select,
@@ -11,6 +13,8 @@ import {
   Button,
   Stack,
   Paper,
+  Fade,
+  IconButton,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -172,7 +176,7 @@ export function SelectField({ label, onChange, inputValue, boxLabel }) {
         py: 1,
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" mb={1}>
+      <Typography variant="subtitle2" color="text.secondary" mb={2}>
         {label}
       </Typography>
       <FormControl fullWidth>
@@ -233,14 +237,19 @@ function MultiSelectField({
         py: 1,
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" mb={1}>
+      <Typography variant="subtitle2" color="text.secondary" mb={2}>
         {label}
       </Typography>
-      <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        useFlexGap
+        sx={{ flexWrap: "wrap", alignItems: "flex-start" }}
+      >
         {formData[field].map((p, index) => (
-          <Box key={index} display="flex" alignItems="center" mb={2}>
-            <Box sx={{ width: 200 }}>
-              <FormControl fullWidth>
+          <Fade in timeout={1000} key={index}>
+            <Box display="flex" alignItems="flex-start" gap={1}>
+              <FormControl sx={{ width: 200 }}>
                 <InputLabel id={`select-label-${index}`}>{boxLabel}</InputLabel>
                 <Select
                   labelId={`select-label-${index}`}
@@ -249,10 +258,9 @@ function MultiSelectField({
                   id={`select-${index}`}
                   value={p || 0}
                   displayEmpty
+                  label={boxLabel}
                 >
-                  <MenuItem value={0} key={0}>
-                    None
-                  </MenuItem>
+                  <MenuItem value={0}>None</MenuItem>
                   {inputData.map((person, personIndex) => (
                     <MenuItem key={personIndex} value={person.id}>
                       {person.first_name} {person.last_name}
@@ -260,14 +268,34 @@ function MultiSelectField({
                   ))}
                 </Select>
               </FormControl>
+
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => removeSpouse(index)}
+                sx={{
+                  mt: 1,
+                  transition: "all 0.2s",
+                  "&:hover": {
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <HighlightOffOutlinedIcon />
+              </IconButton>
             </Box>
-            <HighlightOffOutlinedIcon
-              sx={{ cursor: "pointer", color: "error.main", ml: 1 }}
-              onClick={() => removeSpouse(index)}
-            />
-          </Box>
+          </Fade>
         ))}
-        <AddCircleIcon sx={{ cursor: "pointer" }} onClick={addSpouse} />
+
+        <Fab
+          size="small"
+          color="primary"
+          onClick={addSpouse}
+          aria-label="add"
+          sx={{ mt: 1 }}
+        >
+          <AddCircleIcon />
+        </Fab>
       </Stack>
     </Box>
   );
@@ -285,7 +313,7 @@ function GenderSelectField({ label, value, onChange, boxLabel }) {
         py: 1,
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" mb={1}>
+      <Typography variant="subtitle2" color="text.secondary" mb={2}>
         {label}
       </Typography>
 
@@ -319,6 +347,7 @@ function ImageField({ onChange }) {
   const [avatarImg, setAvatarImg] = useState(
     "https://cdn-icons-png.freepik.com/256/8467/8467062.png?semt=ais_hybrid"
   );
+  const [imageChange, setImageChange] = useState(false);
 
   // renamed to avoid clashing with prop
   const handleImageChange = (imageList) => {
@@ -327,11 +356,13 @@ function ImageField({ onChange }) {
       setAvatarImg(imageDataUrl);
       // send raw data (or whole imageList[0] if needed) to parent
       onChange("avatar_img", imageList[0]["data_url"]);
+      setImageChange(true);
     } else {
       const defaultAvatar =
         "https://cdn-icons-png.freepik.com/256/8467/8467062.png?semt=ais_hybrid";
       setAvatarImg(defaultAvatar);
       onChange("avatar_img", defaultAvatar); // or null
+      setImageChange(false);
     }
 
     setImages(imageList);
@@ -375,14 +406,15 @@ function ImageField({ onChange }) {
               onClick={onImageUpload}
               {...dragProps}
             />
-
-            <Button
-              variant="outlined"
-              onClick={onImageRemoveAll}
-              sx={{ marginTop: 2 }}
-            >
-              Remove Image
-            </Button>
+            {imageChange && (
+              <Button
+                variant="outlined"
+                onClick={onImageRemoveAll}
+                sx={{ marginTop: 2 }}
+              >
+                Remove Image
+              </Button>
+            )}
           </div>
         )}
       </ImageUploading>
@@ -393,10 +425,10 @@ function ImageField({ onChange }) {
 function AddProfileForm(props) {
   const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
   const [familyData, setFamilyData] = useState();
+  const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
   let navigate = useNavigate();
-  console.log("Rendering component with familyData:", familyData);
 
   useEffect(() => {
     const getFamily = async () => {
@@ -407,9 +439,17 @@ function AddProfileForm(props) {
             Authorization: `Bearer ${token}`,
           },
         });
+        if (response.status == 401 || response.status == 403) {
+          const e = await response.json();
+          if (e.error == "token_expired") {
+            navigate("/sessionExpired");
+            return;
+          }
+          navigate("/forbidden");
+          return;
+        }
         const json = await response.json();
         setFamilyData(json);
-        console.log(familyData);
       } catch (error) {
         console.error("API Error:", error);
       } finally {
@@ -443,7 +483,6 @@ function AddProfileForm(props) {
       ...prev,
       [field]: value,
     }));
-    console.log(formData);
   };
 
   const deleteArrayValue = (field, deleteIndex) => {
@@ -464,13 +503,13 @@ function AddProfileForm(props) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.gender) {
-      alert("Please select a gender");
+      setError("Please select a gender");
     }
     if (!formData.dob) {
-      alert("Please select a date of birth");
+      setError("Please select a date of birth");
     }
     if (
       formData.first_name &&
@@ -478,7 +517,7 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
-      fetch(LOCAL_SERVER_URL + "profileAdd", {
+      const response = await fetch(LOCAL_SERVER_URL + "profileAdd", {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -487,11 +526,16 @@ function AddProfileForm(props) {
         },
         body: JSON.stringify(formData),
       });
+      if (response.status == 201) {
+        navigate("/listFamily");
+      } else if (response.status == 400) {
+        const e = await response.json();
+        setError(e);
+      }
     }
   };
 
   if (!loading && (!familyData || familyData.length === 0)) {
-    console.log("Hit — no family data found");
     return (
       <div>
         <form name="profileForm" onSubmit={handleSubmit}>
@@ -741,6 +785,20 @@ function AddProfileForm(props) {
                 onChange={(val) => handleChange("late_life_description", val)}
               />
             </Box>
+            {error && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center", // center horizontally
+                  alignItems: "center", // center vertically
+                }}
+              >
+                <Alert variant="filled" severity="error">
+                  {error}
+                </Alert>
+              </Box>
+            )}
+
             <Box
               sx={{
                 py: 5,

@@ -17,6 +17,7 @@ import AddPersonNode from "./AddPersonNode";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useAuth } from "../authentication/AuthProvider";
+import NoData from "../common/NoData";
 
 const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 const elk = new ELK();
@@ -101,12 +102,14 @@ const nodeTypes = { avatar: AvatarNode, add: AddPersonNode };
 function LayoutFlow() {
   const [graphIsLoading, setGraphIsLoading] = useState(true);
   const [loadTimer, setLoadTimer] = useState(0);
+  const [noNodes, setNoNodes] = useState(false);
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
   const hasCalledFitView = useRef(false);
   const { token } = useAuth();
   const navigate = useNavigate();
+
   const getTree = async () => {
     try {
       const response = await fetch(`${LOCAL_SERVER_URL}tree/getTree`, {
@@ -116,15 +119,23 @@ function LayoutFlow() {
         },
       });
       if (response.status == 401 || response.status == 403) {
+        const e = await response.json();
+        if (e.error == "token_expired") {
+          navigate("/sessionExpired");
+          return;
+        }
         navigate("/forbidden");
         return;
       }
-
       if (!response.ok) {
         throw new Error("Could not complete GET request");
       }
 
       const json = await response.json();
+      if (json[0].nodes == 0) {
+        setNoNodes(true);
+        setGraphIsLoading(false);
+      }
 
       if (json && json[0]) {
         const opts = { "elk.direction": "DOWN", ...elkOptions };
@@ -157,22 +168,21 @@ function LayoutFlow() {
     }
   };
 
-  // Use onNodesChange to detect when all nodes are rendered
-  const handleNodesChange = useCallback(() => {
-    // Only fit view once after nodes are set and rendered
-    if (nodes.length > 0 && !hasCalledFitView.current && graphIsLoading) {
-      // Use requestAnimationFrame to ensure DOM has updated
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          fitView({
-            duration: 800,
-          });
-          setGraphIsLoading(false);
-          hasCalledFitView.current = true;
-        }, 200);
-      });
+  // Handle initial fit view after nodes are fully rendered
+  const handleInitialFitView = useCallback(() => {
+    if (nodes.length > 0 && !hasCalledFitView.current) {
+      // Multiple timeouts to ensure all nodes are measured
+      setTimeout(() => {
+        fitView({
+          padding: 0.2,
+          includeHiddenNodes: false,
+          duration: 800,
+        });
+        hasCalledFitView.current = true;
+        setGraphIsLoading(false);
+      }, 500);
     }
-  }, [nodes.length, fitView, graphIsLoading]);
+  }, [nodes.length, fitView]);
 
   useEffect(() => {
     getTree();
@@ -186,10 +196,12 @@ function LayoutFlow() {
     return () => clearInterval(interval);
   }, []);
 
-  // Call handleNodesChange when nodes change
+  // Call fit view when nodes are set and edges are ready
   useEffect(() => {
-    handleNodesChange();
-  }, [nodes, handleNodesChange]);
+    if (nodes.length > 0 && edges.length > 0) {
+      handleInitialFitView();
+    }
+  }, [nodes.length, edges.length, handleInitialFitView]);
 
   return (
     <div
@@ -201,21 +213,7 @@ function LayoutFlow() {
         width: "100vw", // full viewport width (optional)
       }}
     >
-      {!graphIsLoading ? (
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          style={{ backgroundColor: "#F7F9FB" }}
-          panOnScroll={{ Free: "free" }}
-          panOnScrollSpeed={1}
-          minZoom={0.3}
-        >
-          <Controls position="top-right" showInteractive={false} />
-          <MiniMap />
-          <Background />
-        </ReactFlow>
-      ) : (
+      {graphIsLoading ? (
         <Box
           style={{
             display: "flex",
@@ -237,6 +235,48 @@ function LayoutFlow() {
             <Box style={{ paddingTop: "10px" }}>Waking up the server...!</Box>
           )}
         </Box>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh", // full viewport height
+            width: "100vw", // full viewport width (optional)
+          }}
+        >
+          {noNodes ? (
+            <ReactFlow>
+              <NoData></NoData>
+            </ReactFlow>
+          ) : (
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              style={{ backgroundColor: "#F7F9FB" }}
+              panOnScroll={{ Free: "free" }}
+              panOnScrollSpeed={1}
+              minZoom={0.3}
+              onInit={() => {
+                // Additional fit view call when ReactFlow initializes
+                setTimeout(() => {
+                  if (nodes.length > 0) {
+                    fitView({
+                      padding: { top: 0.1, right: 0.1, bottom: 0.2, left: 0.1 },
+                      includeHiddenNodes: false,
+                      duration: 800,
+                    });
+                  }
+                }, 100);
+              }}
+            >
+              <Controls position="top-right" showInteractive={false} />
+              <MiniMap />
+              <Background />
+            </ReactFlow>
+          )}
+        </div>
       )}
     </div>
   );

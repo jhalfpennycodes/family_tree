@@ -8,9 +8,6 @@ import { Link } from "react-router-dom";
 
 export default function AddPerson(props) {
   const [loading, setLoading] = useState(true);
-  const toggleExpanded = () => {
-    setExpanded((prev) => !prev);
-  };
 
   setTimeout(() => {
     setLoading(false);
@@ -39,7 +36,6 @@ export default function AddPerson(props) {
                 }}
                 whileTap={{ scale: 1 }}
                 className="add-img"
-                onClick={toggleExpanded}
                 src={
                   "https://thumb.ac-illust.com/35/35df4f40a8e742121238c0fcd12cd384_t.jpeg"
                 }

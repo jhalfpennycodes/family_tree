@@ -11,41 +11,19 @@ import {
   ImageListItem,
   Button,
   Stack,
-  Slide,
 } from "@mui/material";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import EditIcon from "@mui/icons-material/Edit";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Fab from "@mui/material/Fab";
 import DeleteIcon from "@mui/icons-material/Delete";
-import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { SelectField } from "./AddProfile";
 
 const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 
-function BornField({ label, profileData, editable }) {
-  if (!editable)
-    return (
-      <Box
-        sx={{
-          mb: 2,
-          pl: 3,
-          borderLeft: "4px solid #ccc",
-          backgroundColor: "#f9f9f9",
-          borderRadius: 1,
-          py: 1,
-        }}
-      >
-        <Typography variant="subtitle" color="text.secondary" mb={2}>
-          {label}
-        </Typography>
-        <Typography variant="body1">{profileData}</Typography>
-      </Box>
-    );
-}
-
-function ProfileField({ label, value, editable }) {
+function BornField({ label, profileData }) {
   return (
     <Box
       sx={{
@@ -60,27 +38,32 @@ function ProfileField({ label, value, editable }) {
       <Typography variant="subtitle" color="text.secondary" mb={2}>
         {label}
       </Typography>
-      {editable ? (
-        <TextField
-          fullWidth
-          defaultValue={value}
-          variant="outlined"
-          size="small"
-        />
-      ) : (
-        <Typography variant="body1">{value}</Typography>
-      )}
+      <Typography variant="body1">{profileData}</Typography>
     </Box>
   );
 }
 
-function ProfileSelectField({
-  label,
-  profileData,
-  editable,
-  inputData,
-  field,
-}) {
+function ProfileTextField({ label, value }) {
+  return (
+    <Box
+      sx={{
+        mb: 2,
+        pl: 3,
+        borderLeft: "4px solid #ccc",
+        backgroundColor: "#f9f9f9",
+        borderRadius: 1,
+        py: 1,
+      }}
+    >
+      <Typography variant="subtitle" color="text.secondary" mb={2}>
+        {label}
+      </Typography>
+      <Typography variant="body1">{value}</Typography>
+    </Box>
+  );
+}
+
+function ProfileSelectField({ label, profileData, field }) {
   if (!profileData[field].id) {
     return (
       <Box
@@ -96,17 +79,9 @@ function ProfileSelectField({
         <Typography variant="subtitle" color="text.secondary" mb={2}>
           {label}
         </Typography>
-        {editable ? (
-          <SelectField
-            label={label}
-            inputValue={profileData}
-            boxLabel={field}
-          ></SelectField>
-        ) : (
-          <Box display="flex" alignItems="center">
-            <Typography>Unknown</Typography>
-          </Box>
-        )}
+        <Box display="flex" alignItems="center">
+          <Typography>Unknown</Typography>
+        </Box>
       </Box>
     );
   }
@@ -125,66 +100,39 @@ function ProfileSelectField({
       <Typography variant="subtitle" color="text.secondary" mb={2}>
         {label}
       </Typography>
-      {editable ? (
-        <select name="selectMother">
-          {(inputData || []).map((person) => (
-            <option key={person.id}>
-              {person.first_name} {person.last_name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <Link
-          to={`/profile/${profileData[field].id}`}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Box display="flex" alignItems="center">
-            <Avatar
-              src={profileData[field].avatar_img}
-              alt="Profile"
-              sx={{
-                width: 50,
-                height: 50,
-                border: "4px solid rgba(0, 0, 0, 0.46)",
-                borderRadius: "50%",
-                objectFit: "cover",
-                marginRight: 1,
-              }}
-            />
-            <Typography>
-              {profileData[field].first_name} {profileData[field].last_name}
-            </Typography>
-          </Box>
-        </Link>
-      )}
+
+      <Link
+        to={`/profile/${profileData[field].id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <Box display="flex" alignItems="center">
+          <Avatar
+            src={profileData[field].avatar_img}
+            alt="Profile"
+            sx={{
+              width: 50,
+              height: 50,
+              border: "4px solid rgba(0, 0, 0, 0.46)",
+              borderRadius: "50%",
+              objectFit: "cover",
+              marginRight: 1,
+              cursor: "pointer",
+              transition: "box-shadow 0.3s",
+              "&:hover": {
+                boxShadow: 8,
+              },
+            }}
+          />
+          <Typography>
+            {profileData[field].first_name} {profileData[field].last_name}
+          </Typography>
+        </Box>
+      </Link>
     </Box>
   );
 }
 
-function ProfileMultiSelectField({
-  label,
-  onChange,
-  onDelete,
-  formData,
-  inputData,
-  boxLabel,
-  field,
-  editable,
-}) {
-  const addSpouse = (e) => {
-    onChange(e.target.value, formData[field].length);
-  };
-
-  const removeSpouse = (index) => {
-    console.log(index);
-    onDelete(index);
-  };
-
-  const handleChange = (e, index) => {
-    const id = e.target.value;
-    onChange(id, index);
-  };
-
+function ProfileMultiSelectField({ label, inputData, field }) {
   return (
     <Box
       sx={{
@@ -199,74 +147,41 @@ function ProfileMultiSelectField({
       <Typography variant="subtitle2" color="text.secondary" mb={1}>
         {label}
       </Typography>
-      {editable ? (
-        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
-          {(formData[field] || []).map((p, index) => (
-            <Box key={index} display="flex" alignItems="center" mb={2}>
-              <Box sx={{ width: 200 }}>
-                <FormControl fullWidth>
-                  <InputLabel id={`select-label-${index}`}>
-                    {boxLabel}
-                  </InputLabel>
-                  <Select
-                    labelId={`select-label-${index}`}
-                    name={label}
-                    onChange={(e) => handleChange(e, index)}
-                    id={`select-${index}`}
-                    value={p || 0}
-                    displayEmpty
-                  >
-                    <MenuItem value={0} key={0}>
-                      None
-                    </MenuItem>
-                    {(inputData || []).map((person, personIndex) => (
-                      <MenuItem key={personIndex} value={person.id}>
-                        {person.first_name} {person.last_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-              <HighlightOffOutlinedIcon
-                sx={{ cursor: "pointer", color: "error.main", ml: 1 }}
-                onClick={() => removeSpouse(index)}
-              />
+      <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+        {inputData[field].map((person, index) => (
+          <Box key={index} display="flex" alignItems="center" mb={2}>
+            <Box sx={{ width: 200 }}>
+              <Link
+                to={`/profile/${person.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Box display="flex" alignItems="center">
+                  <Avatar
+                    src={person.avatar_img}
+                    alt="Profile"
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      border: "4px solid rgba(0, 0, 0, 0.46)",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginRight: 1,
+                      cursor: "pointer",
+                      transition: "box-shadow 0.3s",
+                      "&:hover": {
+                        boxShadow: 8,
+                      },
+                    }}
+                  />
+                  <Typography>
+                    {person.first_name} {person.last_name}
+                  </Typography>
+                </Box>
+              </Link>
             </Box>
-          ))}
-          <AddCircleIcon sx={{ cursor: "pointer" }} onClick={addSpouse} />
-        </Stack>
-      ) : (
-        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
-          {inputData[field].map((person, index) => (
-            <Box key={index} display="flex" alignItems="center" mb={2}>
-              <Box sx={{ width: 200 }}>
-                <Link
-                  to={`/profile/${person.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <Box display="flex" alignItems="center">
-                    <Avatar
-                      src={person.avatar_img}
-                      alt="Profile"
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        border: "4px solid rgba(0, 0, 0, 0.46)",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        marginRight: 1, // adds space between avatar and text
-                      }}
-                    />
-                    <Typography>
-                      {person.first_name} {person.last_name}
-                    </Typography>
-                  </Box>
-                </Link>
-              </Box>
-            </Box>
-          ))}
-        </Stack>
-      )}
+          </Box>
+        ))}
+      </Stack>
     </Box>
   );
 }
@@ -338,58 +253,35 @@ function LifeDescriptionSection({ value, editable }) {
 }
 
 function ProfilePageLayout({ profileData }) {
-  const [editable, setEditable] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const [familyData, setFamilyData] = useState();
-  const { token } = useAuth();
-  console.log(profileData);
-  const handleClick = (event) => {
-    if (event) {
-      console.log("Hit the menu button for OPEN");
-      setAnchorEl(event.currentTarget);
-    }
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
   const handleClose = () => {
-    console.log("Hit the menu button for CLOSE");
-    setAnchorEl(null);
+    setOpen(false);
   };
-
-  const deleteProfile = () => {
-    const shouldRemove = confirm(
-      "Are you sure you want to delete this profile?"
-    );
-    if (shouldRemove) {
-      console.log("About to send DELETE request...");
-      fetch(`http://127.0.0.1:5000/familyTree/profile/${profileData.id}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      });
-    }
-  };
-
-  const handleEdit = async () => {
-    console.log("Hit edit button");
-    setEditable(true);
+  const deleteProfile = async () => {
     try {
-      const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const json = await response.json();
-      console.log("Initial data: ", json);
-      setFamilyData(json);
+      const response = await fetch(
+        LOCAL_SERVER_URL + `profile/${profileData.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status == 202) {
+        navigate("/listFamily");
+      }
     } catch (error) {
-      console.error("API Error:", error);
+      console.log(error);
     }
   };
-  console.log(familyData);
+
   return (
     <Box
       sx={{
@@ -416,60 +308,27 @@ function ProfilePageLayout({ profileData }) {
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
           {profileData.first_name} {profileData.last_name}
         </Typography>
-        {editable ? (
-          <Button
-            onClick={() => {
-              setEditable(!editable);
-            }}
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              boxShadow: 1,
-            }}
-          >
-            Done
-          </Button>
-        ) : (
-          <IconButton
-            aria-label="more options"
-            aria-controls={open ? "profile-menu" : undefined}
-            aria-haspopup="true"
-            onClick={handleClick}
-            size="large"
-            sx={{
-              position: "absolute",
-              top: 80,
-              right: 0,
-              borderRadius: "50%",
-              boxShadow: 2,
-            }}
-          >
-            <MoreHorizIcon />
-          </IconButton>
-        )}
-
-        <Menu
-          id="profile-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={handleClose}>
-            <EditIcon
-              onClick={() => {
-                handleEdit();
-              }}
-            />
-          </MenuItem>
-          <MenuItem onClick={handleClose}>
-            <DeleteIcon onClick={deleteProfile} />
-          </MenuItem>
-        </Menu>
+        <Box sx={{ position: "absolute", top: 80, right: 50 }}>
+          <Fab color="primary">
+            <DeleteIcon onClick={handleClickOpen} />
+          </Fab>
+        </Box>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle id="dialog-title">{"Delete Profile?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this profile? Once the data is
+              deleted it can not longer be retrieved.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={deleteProfile} autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
-
       <h2>General Inforamtion</h2>
 
       {/* Profile info + photo album */}
@@ -479,75 +338,38 @@ function ProfilePageLayout({ profileData }) {
           <BornField
             label="Born"
             profileData={profileData.dob ? profileData.dob : "Unable to load"}
-            editable={editable}
           />
           <ProfileSelectField
             label="Mother"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
-            inputData={familyData}
             field="mother"
           />
           <ProfileSelectField
             label="Father"
             profileData={profileData ? profileData : "Unknown"}
-            editable={editable}
-            inputData={familyData}
             field="father"
           />
-          {/* <ProfileMultiSelectField
+          <ProfileMultiSelectField
             label="Spouse(s)"
             inputData={profileData}
-            editable={editable}
             field="spouses"
-          ></ProfileMultiSelectField> */}
-          {/* <ProfileMultiSelectField
+          ></ProfileMultiSelectField>
+          <ProfileMultiSelectField
             label="Children"
             inputData={profileData}
-            editable={editable}
             field="children"
-          ></ProfileMultiSelectField> */}
+          ></ProfileMultiSelectField>
 
-          <ProfileField
+          <ProfileTextField
             label="Birth Location"
-            value={profileData.birth_location || "London, UK"}
-            editable={editable}
+            value={profileData.birth_location || "Unknown"}
           />
-          <ProfileField
+          <ProfileTextField
             label="Profession"
-            value={profileData.profession || "Philanthropist"}
-            editable={editable}
+            value={profileData.profession || "Unknown"}
           />
         </Box>
-        {/* Dynamic wrapping photo album */}
-        {/* <ImageList
-          cols={2}
-          gap={4}
-          sx={{
-            borderRadius: 1,
-            boxShadow: 5,
-            bgcolor: "background.paper",
-            maxWidth: 500,
-            maxHeight: 550,
-            width: "100%",
-          }}
-        > */}
-        {/* {rockerfellers.map((item) => (
-            <ImageListItem key={item.id} sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <img
-                src={item.imgUrl}
-                alt={item.name}
-                loading="lazy"
-                width={"100%"}
-                height={"auto"}
-              />
-            </ImageListItem>
-          ))}
-        </ImageList> */}
-        <LifeDescriptionSection
-          value={profileData.lifeDescription}
-          editable={editable}
-        />
+        <LifeDescriptionSection value={profileData.lifeDescription} />
       </Box>
     </Box>
   );
@@ -571,8 +393,12 @@ function ProfilePage() {
         });
         console.log("Reponse: ", response.status);
 
-        if (response.status == 401) {
-          console.log("FROBIDDEN");
+        if (response.status == 401 || response.status == 403) {
+          const e = await response.json();
+          if (e.error == "token_expired") {
+            navigate("/sessionExpired");
+            return;
+          }
           navigate("/forbidden");
           return;
         }

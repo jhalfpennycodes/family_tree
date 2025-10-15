@@ -3,12 +3,13 @@ import { Avatar, Box, Typography, Paper, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAuth } from "../authentication/AuthProvider";
-import NoProfile from "../common/NoProfile";
+import NoData from "../common/NoData";
 import { useNavigate } from "react-router-dom";
 
 const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
 
 function ProfileBanner({ person }) {
+  console.log(person.avatar_img);
   return (
     <Link to={`/profile/${person.id}`} style={{ textDecoration: "none" }}>
       <Paper
@@ -127,7 +128,7 @@ function ProfilesList() {
       </Box>
     );
   } else {
-    return <NoProfile />;
+    return <NoData />;
   }
 }
 

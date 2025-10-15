@@ -8,6 +8,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import Fade from "@mui/material/Fade";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
@@ -70,61 +71,63 @@ export default function SignIn() {
       }}
     >
       <Container maxWidth="xs">
-        <Paper
-          elevation={6}
-          sx={{
-            p: 4,
-            borderRadius: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
-            Sign In
-          </Typography>
-          <form
-            noValidate
-            style={{
-              width: "100%",
+        <Fade in timeout={1000}>
+          <Paper
+            elevation={6}
+            sx={{
+              p: 4,
+              borderRadius: 3,
               display: "flex",
               flexDirection: "column",
-              gap: "16px",
               alignItems: "center",
             }}
-            onSubmit={handleSubmit}
           >
-            <TextField
-              label="Email Address"
-              name="email"
-              sx={{ width: "80%" }}
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              name="password"
-              sx={{ width: "80%" }}
-              onChange={(e) => handleChange("password", e.target.value)}
-            />
-            <Button
-              required
-              type="submit"
-              variant="contained"
-              sx={{ width: "80%", mt: 1 }}
-            >
+            <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
               Sign In
-            </Button>
-            {error && (
-              <Alert variant="filled" severity="error">
-                {error}
-              </Alert>
-            )}
-            <Link href="/signup" variant="body2">
-              Don't have an account? Sign up
-            </Link>
-          </form>
-        </Paper>
+            </Typography>
+            <form
+              noValidate
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                alignItems: "center",
+              }}
+              onSubmit={handleSubmit}
+            >
+              <TextField
+                label="Email Address"
+                name="email"
+                sx={{ width: "80%" }}
+                onChange={(e) => handleChange("email", e.target.value)}
+              />
+              <TextField
+                label="Password"
+                type="password"
+                name="password"
+                sx={{ width: "80%" }}
+                onChange={(e) => handleChange("password", e.target.value)}
+              />
+              <Button
+                required
+                type="submit"
+                variant="contained"
+                sx={{ width: "80%", mt: 1 }}
+              >
+                Sign In
+              </Button>
+              {error && (
+                <Alert variant="filled" severity="error">
+                  {error}
+                </Alert>
+              )}
+              <Link href="/signup" variant="body2">
+                Don't have an account? Sign up
+              </Link>
+            </form>
+          </Paper>
+        </Fade>
       </Container>
     </Box>
   );

@@ -110,7 +110,7 @@ function LayoutFlow() {
   const getTree = async () => {
     try {
       const response = await fetch(
-        `${LOCAL_SERVER_URL}tree/getPublicTree/${familyId}`,
+        LOCAL_SERVER_URL + `tree/getPublicTree/${familyId}`,
         {
           method: "GET",
         }

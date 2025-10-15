@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3)  # Optional
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Optional
 jwt = JWTManager(app)
 
 CORS(

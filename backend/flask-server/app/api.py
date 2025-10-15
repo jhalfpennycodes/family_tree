@@ -22,15 +22,15 @@ def my_expired_token_callback(jwt_header, jwt_payload):
 @jwt.invalid_token_loader
 def my_invalid_token_callback(error_string):
     return {
-        'error': 'token_expired',
-        'message': 'The token has expired'
+        'error': 'invalid_token',
+        'message': error_string
     }, 401
 
 @jwt.unauthorized_loader
 def my_unauthorized_callback(error_string):
     return {
-        'error': 'token_expired',
-        'message': 'The token has expired'
+        'error': 'authorization_required',
+        'message': error_string
     }, 401
 
 # HELPER FUNCTIONS
@@ -47,14 +47,14 @@ class PublicListFamilyResource(Resource):
         if family_id < 10:
             return get_list_family(family_id), 200
         else:
-            return 403
+            return 401
         
 class PublicTree3Resource(Resource):
     def get(self, family_id):
         if family_id < 10:
             return get_public_tree(family_id=family_id)
         else:
-            return 403
+            return 401
 
 class PublicFamilyMemberResource(Resource):
     def get(self, person_id):
@@ -86,8 +86,10 @@ class FamilyMemberProfileResource(Resource):
     def get(self, person_id):
         user = User.query.filter_by(email=get_jwt_identity()).first()
         person = Person.query.filter_by(id=person_id).first()
+        if not person or not user:
+            abort(401)
         if not user.family_id == person.family_id:
-            abort(403)
+            abort(401)
         return get_family_member(person_id=person_id)
     
     def delete(self, person_id):
@@ -102,21 +104,20 @@ class FamilyMemberProfileResource(Resource):
                     child.father_id = None
             db.session.delete(person)
             db.session.commit()
-            return f'Person {person.id} ({person.first_name} {person.last_name}), deleted successfully', 200
+            return f'Person {person.id} ({person.first_name} {person.last_name}), deleted successfully', 202
         else:
             return f'Person with ID {person_id} does not exist'
 
 class PostFamilyMemberResource(Resource):
     @jwt_required()
     def post(self):
-        print("Hit")
         user = User.query.filter_by(email=get_jwt_identity()).first()
         family_id = user.family_id
         print(user)
         print(user.family_id)
         person_data = request.get_json()
         if not person_data:
-            return jsonify({'error': 'Invalid or missing JSON'}), 400
+            return {'Invalid or missing JSON'}, 400
         required_fields = ['first_name', 'last_name', 'gender', 'dob']
         if not all(field in person_data for field in required_fields):
             return 'Please provide all data (first name, last name, gender, date of birth)', 400
@@ -126,7 +127,7 @@ class PostFamilyMemberResource(Resource):
         #Check for duplicate names in family
         for person in family:
             if person_data['first_name'] == person.first_name and person_data['last_name'] == person.last_name:
-                return f'A person with the name {person.first_name} {person.last_name} already exists in this family', 400
+                return f'A person those names already exists in this family', 400
         
         optional_keys = ["mother_id", "father_id", "spouses", "birth_location", "profession", "early_life_description", "young_adult_description", "adult_life_description", "late_life_description", "avatar_img", "images"]
         for key in optional_keys:
@@ -188,11 +189,11 @@ class PostFamilyMemberResource(Resource):
                         new_person.spouses.append(spouse)
                         spouse.spouses.append(new_person)
                 except:
-                    return "The spouse ID you provided cannot be found.", 400
+                    return "The spouse you provided cannot be found.", 400
         
         if person_data['children'] != None:
             if not isinstance(person_data['children'], list):
-                return "Please provide children in list format"
+                return "Please provide children in list format", 400
             else:
                 try:
                     children = Person.query.filter(Person.id.in_(person_data['children'])).all()
@@ -201,20 +202,20 @@ class PostFamilyMemberResource(Resource):
                             if not child.father_id:
                                 child.father_id = new_person.id
                             else:
-                                return f"{child.first_name} {child.last_name} already has a father"
+                                return f"{child.first_name} {child.last_name} already has a father", 400
                         elif new_person.gender == 'Female':
                             if not child.mother_id:
                                 child.mother_id = new_person.id
                             else:
-                                return f"{child.first_name} {child.last_name} already has a mother"
+                                return f"{child.first_name} {child.last_name} already has a mother", 400
                         else:
-                            return "Please select gender at birth"
+                            return "Please select gender at birth", 400
                 except:
-                    return "The children ID you have provided cannot be found", 400
+                    return "The child you have provided cannot be found", 400
 
         db.session.commit()
 
-        return 200
+        return "Success", 201
 
 # AUTHENTICATION RESOURCES
 class SignInResource(Resource):
