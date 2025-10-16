@@ -38,7 +38,6 @@ const AvatarNode = ({ data }) => {
         profession={data.profession}
       />
 
-      {/* Label underneath */}
       {data.first_name && data.last_name && !isProfileOpen && (
         <div
           style={{

@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Box,
@@ -92,10 +94,6 @@ function ProfilesList({ familyData, loading }) {
         fontFamily: "Roboto, sans-serif",
       }}
     >
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold" }}>
-        Family Members
-      </Typography>
-
       <Grid container spacing={3}>
         {Array.isArray(familyData) &&
           familyData.map((person) => (
@@ -109,8 +107,8 @@ function ProfilesList({ familyData, loading }) {
 }
 
 function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
-  const [family, setFamily] = React.useState("");
-
+  const [family, setFamily] = useState("");
+  const navigate = useNavigate();
   const handleChange = (event) => {
     const selectedFamily = event.target.value;
     setFamily(selectedFamily);
@@ -122,6 +120,9 @@ function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
         const response = await fetch(
           LOCAL_SERVER_URL + `publicFamily/${selectedFamily}`
         );
+        if (response.status == 500) {
+          navigate("/serverError");
+        }
         const json = await response.json();
         setFamilyData(json);
       } catch (error) {
@@ -159,19 +160,22 @@ function ViewTree({ selectedFamily }) {
   return (
     <Link
       to={selectedFamily ? `/publicTree/${selectedFamily}` : "#"}
-      style={{ pointerEvents: selectedFamily ? "auto" : "none" }}
+      style={{ pointerEvents: selectedFamily ? "auto" : "none", width: "100%" }}
     >
       <Button
         variant="contained"
         startIcon={<ParkIcon />}
         disabled={!selectedFamily}
+        sx={{
+          width: { xs: "100%", sm: "180px" }, // fixed width on desktop for alignment
+          height: 56, // match typical Select height
+        }}
       >
         View Tree
       </Button>
     </Link>
   );
 }
-
 export default function PublicFamilyList() {
   const [familyData, setFamilyData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -179,25 +183,55 @@ export default function PublicFamilyList() {
 
   return (
     <>
-      <Stack spacing={1} direction="row">
-        <Box sx={{ padding: "50px", paddingBottom: "20px", width: "30%" }}>
+      {/* Responsive container for Select + Button */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "row", sm: "row" }, // row on mobile and desktop
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: { xs: "wrap", sm: "nowrap" }, // wrap on small mobile screens
+          px: { xs: 2, sm: 5 },
+          pt: { xs: 2, sm: 5 },
+          mb: 3,
+          gap: 1, // small gap between select and button
+        }}
+      >
+        {/* Select Family */}
+        <Box
+          sx={{
+            flex: { xs: "1 1 auto", sm: "0 0 60%" }, // flexible on mobile
+            minWidth: 0, // allows shrinking on small screens
+          }}
+        >
           <SelectFamily
             setFamilyData={setFamilyData}
             setLoading={setLoading}
             setSelectedFamily={setSelectedFamily}
           />
         </Box>
+
+        {/* View Tree Button */}
         <Box
           sx={{
-            padding: "50px",
-            paddingTop: "60px",
-            paddingLeft: "0px",
-            width: "30%",
+            flex: { xs: "0 0 auto", sm: "0 0 auto" },
           }}
         >
           <ViewTree selectedFamily={selectedFamily} />
         </Box>
-      </Stack>
+      </Box>
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          p: 3,
+          fontFamily: "Roboto, sans-serif",
+        }}
+      >
+        <Typography variant="h4" sx={{ mb: 1, fontWeight: "bold" }}>
+          Family Members
+        </Typography>
+      </Box>
       <ProfilesList familyData={familyData} loading={loading} />
     </>
   );

@@ -2,6 +2,7 @@ import * as React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Home from "./common/Home";
+import Dashboard from "./common/Dashboard";
 import Tree from "./graph/Tree";
 import ProfilePage from "./profile/ProfilePage";
 import ProfileList from "./profile/ProfileList";
@@ -17,6 +18,8 @@ import PublicFamilyTree from "./publicFamilies/PublicFamilyTree";
 import AccessDenied from "./authentication/AccessDenied";
 import PublicProfilePage from "./publicFamilies/PublicProfilePage";
 import SessionExpired from "./authentication/SessionExpired";
+import InvalidToken from "./authentication/InvalidToken";
+import ServerError from "./common/ServerError";
 
 export default function App() {
   return (
@@ -25,7 +28,7 @@ export default function App() {
         <BrowserRouter>
           <Navbar />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Dashboard />} />
             <Route
               path="/publicTree/:familyId"
               element={<PublicFamilyTree />}
@@ -47,6 +50,8 @@ export default function App() {
             <Route path="/signin" element={<SlotsSignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
             <Route path="/forbidden" element={<AccessDenied />}></Route>
+            <Route path="/notAuthenticated" element={<InvalidToken />}></Route>
+            <Route path="/serverError" element={<ServerError />}></Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -206,6 +206,18 @@ function LayoutFlow() {
           panOnScroll={{ Free: "free" }}
           panOnScrollSpeed={1}
           minZoom={0.3}
+          onInit={() => {
+            // Additional fit view call when ReactFlow initializes
+            setTimeout(() => {
+              if (nodes.length > 0) {
+                fitView({
+                  padding: { top: 0.1, right: 0.1, bottom: 0.2, left: 0.1 },
+                  includeHiddenNodes: false,
+                  duration: 800,
+                });
+              }
+            }, 100);
+          }}
         >
           <Controls position="top-right" showInteractive={false} />
           <MiniMap />

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import { AppBar, Toolbar, Button, Avatar, Box, Stack } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
@@ -8,15 +9,111 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Link } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
+import MenuIcon from "@mui/icons-material/Menu";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import { IconButton } from "@mui/material";
+
 import { useAuth } from "../authentication/AuthProvider";
+import { useTheme, useMediaQuery } from "@mui/material";
 
 export default function Navbar() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // small screens
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const { token, logout } = useAuth();
   const handleLogout = () => {
     logout();
   };
 
-  return (
+  return isMobile ? (
+    <AppBar position="static">
+      <Toolbar>
+        {/* Logo always visible */}
+        <Link to="/">
+          <Button startIcon={<AccountTreeIcon />} sx={{ color: "white" }}>
+            FreeFamilyTree
+          </Button>
+        </Link>
+
+        <Box sx={{ flexGrow: 1 }} />
+
+        {/* Hamburger menu for mobile */}
+        {isMobile && (
+          <>
+            <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+            <Drawer
+              anchor="right"
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+            >
+              <List sx={{ width: 250 }}>
+                {(!token
+                  ? [
+                      {
+                        text: "View Tree",
+                        link: "/publicTree/0",
+                        icon: <ParkIcon />,
+                      },
+                      {
+                        text: "Famous Families",
+                        link: "/publicFamilies",
+                        icon: <FamilyRestroomIcon />,
+                      },
+                      { text: "Sign in", link: "/signin", icon: <LoginIcon /> },
+                    ]
+                  : [
+                      {
+                        text: "View My Tree",
+                        link: "/tree",
+                        icon: <ParkIcon />,
+                      },
+                      {
+                        text: "Family Members",
+                        link: "/listFamily",
+                        icon: <FamilyRestroomIcon />,
+                      },
+                      {
+                        text: "Add Person",
+                        link: "/addProfile",
+                        icon: <PersonAddIcon />,
+                      },
+                      {
+                        text: "Sign out",
+                        link: "/",
+                        icon: <LogoutIcon />,
+                        onClick: handleLogout,
+                      },
+                    ]
+                ).map((item, index) => (
+                  <ListItem key={index} disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to={item.link}
+                      onClick={() => {
+                        if (item.onClick) item.onClick();
+                        setDrawerOpen(false); // close drawer
+                      }}
+                    >
+                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemText primary={item.text} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Drawer>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
+  ) : (
     <AppBar position="static">
       <Toolbar>
         <Link to="/">

@@ -249,4 +249,11 @@ class SignUpResource(Resource):
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()
-        return {"message": "User created successfully."}, 201
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return {"msg": "Bad username or password"}, 401
+        if not user.verify_password(password):
+            return {"msg": "Bad username or password"}, 401
+
+        access_token = create_access_token(identity=email)
+        return {"access_token" : access_token}, 200

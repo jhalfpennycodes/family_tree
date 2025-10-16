@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 import {
   Alert,
   Button,
@@ -27,7 +28,7 @@ export default function SignUp() {
     password: "",
     confirm_password: "",
   });
-
+  const { login } = useAuth();
   const [error, setError] = useState("");
 
   const handleChange = (field, value) => {
@@ -58,14 +59,24 @@ export default function SignUp() {
             },
             body: JSON.stringify(formData),
           });
-          if (response.status === 201) {
-            navigate("/signin");
+          if (response.status === 200) {
+            const data = await response.json();
+            if (data.access_token) {
+              console.log("This came from the backend", data.access_token);
+              login(data.access_token);
+              navigate("/listFamily");
+              return;
+            }
           } else if (response.status === 400) {
             const errorData = await response.json();
             if (errorData.message === "Email already registered.") {
               setError(
                 "Email already registered, please sign in or use another email."
               );
+              return;
+            } else {
+              navigate("/serverError");
+              return;
             }
           }
         } catch (error) {

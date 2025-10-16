@@ -112,20 +112,27 @@ function LayoutFlow() {
 
   const getTree = async () => {
     try {
-      const response = await fetch(`${LOCAL_SERVER_URL}tree/getTree`, {
+      const response = await fetch(LOCAL_SERVER_URL + `tree/getTree`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      if (response.status == 500) {
+        navigate("/serverError");
+        return;
+      }
       if (response.status == 401 || response.status == 403) {
         const e = await response.json();
+        console.log(e.error);
         if (e.error == "token_expired") {
           navigate("/sessionExpired");
           return;
         }
-        navigate("/forbidden");
-        return;
+        if (e.error == "invalid_token") {
+          navigate("/notAuthenticated");
+          return;
+        }
       }
       if (!response.ok) {
         throw new Error("Could not complete GET request");

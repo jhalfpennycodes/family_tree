@@ -4,7 +4,15 @@ body {
   font-family: sans-serif;
 }
 
+@plugin "tailwindcss-animate";
+
 #app {
   width: 100vw;
   height: 100vh;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "flowbite/dist/flowbite.css";

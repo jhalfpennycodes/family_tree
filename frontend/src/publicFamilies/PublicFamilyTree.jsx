@@ -20,6 +20,21 @@ import ParkIcon from "@mui/icons-material/Park";
 import PublicTree from "./PublicTree";
 import { useParams } from "react-router-dom";
 
+const menuItems = [
+  {
+    value: 1,
+    title: "The Rockerfellers",
+  },
+  {
+    value: 2,
+    title: "The Royal Family",
+  },
+  {
+    value: 3,
+    title: "The Kardashians",
+  },
+];
+
 function SelectFamily({ selectedFamily, setSelectedFamily }) {
   const handleChange = (event) => {
     const selectedFamily = event.target.value;
@@ -37,57 +52,56 @@ function SelectFamily({ selectedFamily, setSelectedFamily }) {
           value={selectedFamily ?? ""}
           onChange={handleChange}
         >
-          <MenuItem value={1}>The Rockerfellers</MenuItem>
-          <MenuItem value={2}>The Royal Family</MenuItem>
-          <MenuItem value={3}>The Kardashians</MenuItem>
+          {menuItems.map((item) => (
+            <MenuItem
+              key={item.value}
+              value={item.value}
+              component={Link}
+              to={`/publicTree/${item.value}`}
+            >
+              {item.title}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </Box>
   );
 }
-
-function ViewTree({ selectedFamily }) {
-  return (
-    <Link
-      to={selectedFamily ? `/publicTree/${selectedFamily}` : "#"}
-      style={{ pointerEvents: selectedFamily ? "auto" : "none" }}
-    >
-      <Button
-        variant="contained"
-        startIcon={<ParkIcon />}
-        disabled={!selectedFamily}
-      >
-        View Tree
-      </Button>
-    </Link>
-  );
-}
-
 export default function PublicFamilyTree() {
   const [selectedFamily, setSelectedFamily] = useState("");
   const { familyId } = useParams(); // Read the URL parameter
 
   return (
     <>
-      <Stack spacing={1} direction="row">
-        <Box sx={{ padding: "30px", paddingBottom: "5px", width: "30%" }}>
+      {/* Responsive container for SelectFamily */}
+      <Stack
+        spacing={2}
+        direction={{ xs: "column", sm: "row" }}
+        alignItems={{ xs: "stretch", sm: "flex-start" }}
+        sx={{ px: { xs: 2, sm: 5 }, pt: { xs: 2, sm: 5 }, mb: 3 }}
+      >
+        {/* Select Family */}
+        <Box
+          sx={{
+            flex: { xs: "1 1 100%", sm: "0 0 55%" }, // slightly longer on desktop
+            minWidth: 150,
+          }}
+        >
           <SelectFamily
             selectedFamily={selectedFamily}
             setSelectedFamily={setSelectedFamily}
           />
         </Box>
+
+        {/* Empty spacer to maintain layout alignment on desktop */}
         <Box
           sx={{
-            padding: "50px",
-            paddingTop: "40px",
-            paddingLeft: "0px",
-            paddingBottom: "30px",
-            width: "30%",
+            flex: { xs: "1 1 100%", sm: "0 0 30%" }, // optional, keeps spacing consistent
           }}
-        >
-          <ViewTree selectedFamily={selectedFamily} />
-        </Box>
+        />
       </Stack>
+
+      {/* Render tree if a family is selected */}
       {familyId != 0 && <PublicTree key={familyId} />}
     </>
   );

@@ -31,7 +31,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function ProfileCard(props) {
+export default function PublicProfileCard(props) {
   const [expanded, setExpanded] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
