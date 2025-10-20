@@ -18,7 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 
-const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE;
 
 function BornField({ label, profileData, editable }) {
   if (!editable)
@@ -272,23 +272,19 @@ function LifeDescriptionSection({ value, editable }) {
   const sections = [
     {
       title: "Early Life",
-      text: value?.earlyLife || "Details about early childhood...",
-    },
-    {
-      title: "Teenage Years",
-      text: value?.teenageYears || "Events from teenage years...",
+      text: value[0]?.early_life || "Details about early childhood...",
     },
     {
       title: "Young Adult",
-      text: value?.youngAdult || "College, first job, etc...",
+      text: value[0]?.young_adult || "College, first job, etc...",
     },
     {
       title: "Adult",
-      text: value?.adult || "Family, career progression...",
+      text: value[0]?.adult_life || "Family, career progression...",
     },
     {
       title: "Later Life",
-      text: value?.laterLife || "Retirement, contributions, etc...",
+      text: value[0]?.late_life || "Retirement, contributions, etc...",
     },
   ];
 
@@ -335,49 +331,55 @@ function LifeDescriptionSection({ value, editable }) {
 }
 
 function ProfilePageLayout({ profileData }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
   const [familyData, setFamilyData] = useState();
-
-  const handleClick = (event) => {
-    if (event) {
-      setAnchorEl(event.currentTarget);
-    }
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <Box
       sx={{
         maxWidth: 1200,
         mx: "auto",
-        p: 3,
+        p: { xs: 2, sm: 3 },
         position: "relative",
         fontFamily: "Roboto, sans-serif",
       }}
     >
       {/* Avatar and Name on top */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: { xs: 2, sm: 3 },
+          mb: 4,
+          flexDirection: { xs: "column", sm: "row" },
+          textAlign: { xs: "center", sm: "left" },
+        }}
+      >
         <Avatar
           src={profileData.avatar_img}
           alt="Profile"
           sx={{
-            width: 150,
-            height: 150,
+            width: { xs: 100, sm: 150 },
+            height: { xs: 100, sm: 150 },
             border: "4px solid rgba(0, 0, 0, 0.46)",
             borderRadius: "50%",
             objectFit: "cover",
           }}
         />
-        <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: "bold",
+            fontSize: { xs: "1.75rem", sm: "2.5rem", md: "3rem" },
+            wordBreak: "break-word",
+          }}
+        >
           {profileData.first_name} {profileData.last_name}
         </Typography>
       </Box>
 
-      <h2>General Inforamtion</h2>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+        General Information
+      </Typography>
 
       {/* Profile info + photo album */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
@@ -403,13 +405,12 @@ function ProfilePageLayout({ profileData }) {
             label="Spouse(s)"
             inputData={profileData}
             field="spouses"
-          ></ProfileMultiSelectField>
+          />
           <ProfileMultiSelectField
             label="Children"
             inputData={profileData}
             field="children"
-          ></ProfileMultiSelectField>
-
+          />
           <ProfileTextField
             label="Birth Location"
             value={profileData.birth_location || "Not provided"}
@@ -419,7 +420,8 @@ function ProfilePageLayout({ profileData }) {
             value={profileData.profession || "Not provided"}
           />
         </Box>
-        <LifeDescriptionSection value={profileData.lifeDescription} />
+
+        <LifeDescriptionSection value={profileData.life_description} />
       </Box>
     </Box>
   );
@@ -433,7 +435,7 @@ function PublicProfilePage() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `publicProfile/${id}`);
+        const response = await fetch(VITE_API_BASE + `/publicProfile/${id}`);
         const json = await response.json();
         setProfileData(json);
       } catch (error) {

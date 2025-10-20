@@ -1,11 +1,12 @@
-from app import app, db
-from app.models import Person, spouse_link, Family
+from app import db, app
+from app.models import Person, spouse_link, Family, User
 
 # Delete all objects
 def delete_all():
     try:
         db.session.query(Person).delete()
         db.session.query(Family).delete()
+        db.session.query(User).delete()
         db.session.execute(spouse_link.delete())
         db.session.commit()
         print("All Persons and relations deleted successfully!")

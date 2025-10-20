@@ -1,0 +1,26 @@
+services:
+  flask:
+    build:
+      context: ./backend/flask-server
+      dockerfile: Dockerfile
+    container_name: flask_app
+    command: gunicorn --bind 0.0.0.0:8000 run:app # assuming run.py defines app
+    volumes:
+      - ./backend/flask-server:/app
+      - ./backend/flask-server/app/static/uploads:/app/static/uploads
+    expose:
+      - "8000"
+    environment:
+      - FLASK_ENV=development
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./backend/flask-server/app/static/uploads:/app/static/uploads
+    depends_on:
+      - flask

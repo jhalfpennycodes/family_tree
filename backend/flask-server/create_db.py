@@ -1,4 +1,4 @@
-from app import app, db
+from app import db, app
 from app.models import Person, User
 import json
 from datetime import datetime
@@ -67,26 +67,94 @@ def link_windsor_spouses():
       # King Charles III (22) and Princess Diana (23)
       spousify(22, 23)
 
-      # (Optional) Uncomment if you later add these people:
-      # Prince William (27) and Catherine Middleton (Kate)
-      # spousify(27, <CATHERINE_ID>)
-
-      # Prince Harry (28) and Meghan Markle
-      # spousify(28, <MEGHAN_ID>)
-
-      # Prince Andrew (25) and Sarah Ferguson
-      # spousify(25, <SARAH_ID>)
-
-      # Prince Edward (26) and Sophie Rhys-Jones
-      # spousify(26, <SOPHIE_ID>)
-
       db.session.commit()
-
-
-
     except Exception as e:
       print("Windsor spouses failed")
       print("Error: ", e)
+
+
+def link_beckham_spouses():
+    try:
+        # David Beckham (80) & Victoria Beckham (83)
+        spousify(80, 83)
+
+        # David's parents — Sandra (81) & Ted (82)
+        spousify(81, 82)
+
+        # Victoria's parents — Jacqueline (84) & Anthony (85)
+        spousify(84, 85)
+
+        # Brooklyn Beckham (86) & Nicola Peltz Beckham (90)
+        spousify(86, 90)
+
+        # Nicola's parents — Claudia (91) & Nelson (92)
+        spousify(91, 92)
+        db.session.commit()
+    except Exception as e:
+        print(f"Error linking Beckham spouses: {e}")
+
+
+def link_jackson_spouses():
+    try:
+        # Joseph & Katherine Jackson
+        spousify(101, 102)
+        
+        # Michael Jackson & Debbie Rowe
+        spousify(100, 114)
+        
+        # Michael Jackson & Lisa Marie Presley
+        spousify(100, 115)
+        
+        # Janet Jackson & Wissam Al Mana
+        spousify(103, 116)
+
+    except Exception as e:
+        print(f"Error linking Jackson spouses: {e}")
+
+
+def link_jolie_pitt_spouses():
+    try:
+        # Angelina Jolie & Brad Pitt
+        spousify(200, 203)
+        
+        # Angelina's parents (Marcheline Bertrand & Jon Voight)
+        spousify(201, 202)
+        
+        # Brad Pitt's parents (Jane & William Pitt)
+        spousify(204, 205)
+        
+    except Exception as e:
+        print(f"Error linking Jolie-Pitt spouses: {e}")
+
+def link_smith_spouses():
+    try:
+        # Will Smith & Jada Pinkett Smith
+        spousify(300, 303)
+        
+        # Will Smith's parents
+        spousify(301, 302)
+        
+        # Jada Pinkett Smith's parents
+        spousify(304, 305)
+
+    except Exception as e:
+        print(f"Error linking Smith spouses: {e}")
+
+
+def link_coppola_spouses():
+    try:
+        # Francis Ford Coppola & Eleanor Coppola
+        spousify(400, 405)
+        
+        # Carmine & Italia Coppola
+        spousify(401, 402)
+        
+        # Talia Shire & Father of children (if any known, else null)
+        # Placeholder: spousify(403, X)
+        
+    except Exception as e:
+        print(f"Error linking Coppola spouses: {e}")
+
 
 def create_dummy_users():
   try:
@@ -120,6 +188,17 @@ if __name__ == '__main__':
           create_dummy_data("windsor.json")
           link_windsor_spouses()
           create_dummy_data("kardashin.json")
+          create_dummy_data("beckham.json")
+          link_beckham_spouses()
+          create_dummy_data("jackson.json")
+          link_jackson_spouses()
+          create_dummy_data("jolie_pitt.json")
+          link_jolie_pitt_spouses()
+          create_dummy_data("smith.json")
+          link_smith_spouses()
+          create_dummy_data("coppala.json")
+          link_coppola_spouses()
+          
           create_dummy_users()
           print("Dummy data added successfully!")
         except Exception as e:

@@ -272,7 +272,16 @@ def get_family_member(person_id):
                 ]
             }
         ],
+        'life_description': [
+            {
+                'early_life': person.early_life_description,
+                'young_adult': person.young_adult_description,
+                'adult_life': person.adult_life_description,
+                'late_life': person.late_life_description
+            }
+        ],
         'avatar_img': avatar_img
         }
+
     )
     return result

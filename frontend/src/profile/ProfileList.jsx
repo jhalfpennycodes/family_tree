@@ -6,7 +6,7 @@ import { useAuth } from "../authentication/AuthProvider";
 import NoData from "../common/NoData";
 import { useNavigate } from "react-router-dom";
 
-const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE;
 
 function ProfileBanner({ person }) {
   console.log(person.avatar_img);
@@ -63,7 +63,7 @@ function ProfilesList() {
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
+        const response = await fetch(VITE_API_BASE + `/listFamily`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

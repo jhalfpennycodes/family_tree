@@ -21,7 +21,7 @@ import Fab from "@mui/material/Fab";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CircularProgress from "@mui/material/CircularProgress";
 
-const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE;
 
 function BornField({ label, profileData }) {
   return (
@@ -190,23 +190,19 @@ function LifeDescriptionSection({ value, editable }) {
   const sections = [
     {
       title: "Early Life",
-      text: value?.earlyLife || "Details about early childhood...",
-    },
-    {
-      title: "Teenage Years",
-      text: value?.teenageYears || "Events from teenage years...",
+      text: value[0]?.early_life || "Details about early childhood...",
     },
     {
       title: "Young Adult",
-      text: value?.youngAdult || "College, first job, etc...",
+      text: value[0]?.young_adult || "College, first job, etc...",
     },
     {
       title: "Adult",
-      text: value?.adult || "Family, career progression...",
+      text: value[0]?.adult_life || "Family, career progression...",
     },
     {
       title: "Later Life",
-      text: value?.laterLife || "Retirement, contributions, etc...",
+      text: value[0]?.late_life || "Retirement, contributions, etc...",
     },
   ];
 
@@ -258,14 +254,13 @@ function ProfilePageLayout({ profileData }) {
   const handleClickOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
   const deleteProfile = async () => {
     try {
       const response = await fetch(
-        LOCAL_SERVER_URL + `profile/${profileData.id}`,
+        VITE_API_BASE + `profile/${profileData.id}`,
         {
           method: "DELETE",
           headers: {
@@ -369,7 +364,7 @@ function ProfilePageLayout({ profileData }) {
             value={profileData.profession || "Unknown"}
           />
         </Box>
-        <LifeDescriptionSection value={profileData.lifeDescription} />
+        <LifeDescriptionSection value={profileData.life_description} />
       </Box>
     </Box>
   );
@@ -381,18 +376,15 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
-
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `profile/${id}`, {
+        const response = await fetch(VITE_API_BASE + `profile/${id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Reponse: ", response.status);
-
         if (response.status == 401 || response.status == 403) {
           const e = await response.json();
           if (e.error == "token_expired") {

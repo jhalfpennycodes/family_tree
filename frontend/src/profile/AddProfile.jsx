@@ -423,7 +423,7 @@ function ImageField({ onChange }) {
 }
 
 function AddProfileForm(props) {
-  const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+  const VITE_API_BASE = import.meta.env.VITE_API_BASE;
   const [familyData, setFamilyData] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
@@ -433,7 +433,7 @@ function AddProfileForm(props) {
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(LOCAL_SERVER_URL + `listFamily`, {
+        const response = await fetch(VITE_API_BASE + `listFamily`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -517,7 +517,7 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
-      const response = await fetch(LOCAL_SERVER_URL + "profileAdd", {
+      const response = await fetch(VITE_API_BASE + "profileAdd", {
         method: "POST",
         headers: {
           Accept: "application/json",

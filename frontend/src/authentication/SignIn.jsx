@@ -12,7 +12,7 @@ import Fade from "@mui/material/Fade";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
-const LOCAL_SIGNIN_URL = import.meta.env.VITE_LOCAL_SIGNIN_URL;
+const SIGNIN_URL = import.meta.env.VITE_SIGNIN_URL;
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function SignIn() {
     e.preventDefault();
     if (formData.email && formData.password) {
       try {
-        const response = await fetch(LOCAL_SIGNIN_URL, {
+        const response = await fetch(SIGNIN_URL, {
           method: "POST",
           headers: {
             Accept: "application/json",

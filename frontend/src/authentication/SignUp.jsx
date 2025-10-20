@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import Fade from "@mui/material/Fade";
 
-const LOCAL_SIGNUP_URL = import.meta.env.VITE_LOCAL_SIGNUP_URL;
+const SIGNUP_URL = import.meta.env.VITE_SIGNUP_URL;
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function SignUp() {
         setError("Password do not match.");
       } else {
         try {
-          const response = await fetch(LOCAL_SIGNUP_URL, {
+          const response = await fetch(SIGNUP_URL, {
             method: "POST",
             headers: {
               Accept: "application/json",

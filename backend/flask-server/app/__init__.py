@@ -18,9 +18,10 @@ jwt = JWTManager(app)
 
 CORS(
     app,
-    resources={r"/familyTree/*": {"origins": ["http://localhost:5173"]}},
+    resources={r"/familyTree/*": {"origins": ["http://localhost", "http://127.0.0.1", "http://localhost:5173"]}},
     supports_credentials=True,
 )
+
 
 # Then initialize other extensions
 api = Api(app)

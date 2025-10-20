@@ -33,6 +33,26 @@ const menuItems = [
     value: 3,
     title: "The Kardashians",
   },
+  {
+    value: 4,
+    title: "The Beckhams",
+  },
+  {
+    value: 5,
+    title: "The Jacksons",
+  },
+  {
+    value: 6,
+    title: "The Jolie-Pitts",
+  },
+  {
+    value: 7,
+    title: "The Smiths",
+  },
+  {
+    value: 8,
+    title: "The Coppalas",
+  },
 ];
 
 function SelectFamily({ selectedFamily, setSelectedFamily }) {

@@ -1,21 +1,5 @@
-# from flask import render_template, request, redirect, url_for
-# from .forms import PersonForm, AddParentForm, AddChildForm
-
 from app import app, db, api
 from app.api import ListAllFamilyMembersResource, FamilyMemberProfileResource, Tree3Resource, SignInResource, SignUpResource, PublicListFamilyResource, PublicTree3Resource, PublicFamilyMemberResource, PostFamilyMemberResource
-from flask import Flask, jsonify, request 
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-
-
-# Setup the Flask-JWT-Extended extension
-
-
-
-# Create a route to authenticate your users and return JWTs. The
-# create_access_token() function is used to actually generate the JWT.
-
 
 
 api.add_resource(SignInResource, '/familyTree/signin')

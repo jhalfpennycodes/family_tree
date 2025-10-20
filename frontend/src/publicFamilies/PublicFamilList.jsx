@@ -18,7 +18,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import ParkIcon from "@mui/icons-material/Park";
 
-const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE;
 
 function ProfileBanner({ person }) {
   return (
@@ -118,7 +118,7 @@ function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
     const getFamily = async () => {
       try {
         const response = await fetch(
-          LOCAL_SERVER_URL + `publicFamily/${selectedFamily}`
+          VITE_API_BASE + `publicFamily/${selectedFamily}`
         );
         if (response.status == 500) {
           navigate("/serverError");
@@ -150,6 +150,11 @@ function SelectFamily({ setFamilyData, setLoading, setSelectedFamily }) {
           <MenuItem value={1}>The Rockerfellers</MenuItem>
           <MenuItem value={2}>The Royal Family</MenuItem>
           <MenuItem value={3}>The Kardashians</MenuItem>
+          <MenuItem value={4}>The Beckhams</MenuItem>
+          <MenuItem value={5}>The Jacksons</MenuItem>
+          <MenuItem value={6}>The Jolie-Pitts</MenuItem>
+          <MenuItem value={7}>The Smiths</MenuItem>
+          <MenuItem value={8}>The Coppalas</MenuItem>
         </Select>
       </FormControl>
     </Box>

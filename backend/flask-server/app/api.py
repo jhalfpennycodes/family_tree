@@ -59,7 +59,7 @@ class PublicTree3Resource(Resource):
 class PublicFamilyMemberResource(Resource):
     def get(self, person_id):
         person = Person.query.filter_by(id=person_id).first()
-        if person.family_id > 10:
+        if not person or person.family_id > 10:
             return 401
         return get_family_member(person_id=person_id)
 

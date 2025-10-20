@@ -18,7 +18,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useAuth } from "../authentication/AuthProvider";
 
-const LOCAL_SERVER_URL = import.meta.env.VITE_LOCAL_SERVER_URL;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE;
 const elk = new ELK();
 
 const elkOptions = {
@@ -110,7 +110,7 @@ function LayoutFlow() {
   const getTree = async () => {
     try {
       const response = await fetch(
-        LOCAL_SERVER_URL + `tree/getPublicTree/${familyId}`,
+        VITE_API_BASE + `tree/getPublicTree/${familyId}`,
         {
           method: "GET",
         }
@@ -153,22 +153,21 @@ function LayoutFlow() {
     }
   };
 
-  // Use onNodesChange to detect when all nodes are rendered
-  const handleNodesChange = useCallback(() => {
-    // Only fit view once after nodes are set and rendered
-    if (nodes.length > 0 && !hasCalledFitView.current && graphIsLoading) {
-      // Use requestAnimationFrame to ensure DOM has updated
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          fitView({
-            duration: 800,
-          });
-          setGraphIsLoading(false);
-          hasCalledFitView.current = true;
-        }, 200);
-      });
+  // Handle initial fit view after nodes are fully rendered
+  const handleInitialFitView = useCallback(() => {
+    if (nodes.length > 0 && !hasCalledFitView.current) {
+      // Multiple timeouts to ensure all nodes are measured
+      setTimeout(() => {
+        fitView({
+          padding: 0.2,
+          includeHiddenNodes: false,
+          duration: 800,
+        });
+        hasCalledFitView.current = true;
+        setGraphIsLoading(false);
+      }, 500);
     }
-  }, [nodes.length, fitView, graphIsLoading]);
+  }, [nodes.length, fitView]);
 
   useEffect(() => {
     getTree();
@@ -182,10 +181,12 @@ function LayoutFlow() {
     return () => clearInterval(interval);
   }, []);
 
-  // Call handleNodesChange when nodes change
+  // Call fit view when nodes are set and edges are ready
   useEffect(() => {
-    handleNodesChange();
-  }, [nodes, handleNodesChange]);
+    if (nodes.length > 0 && edges.length > 0) {
+      handleInitialFitView();
+    }
+  }, [nodes.length, edges.length, handleInitialFitView]);
 
   return (
     <div

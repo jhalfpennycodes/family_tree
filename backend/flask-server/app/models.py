@@ -44,7 +44,7 @@ class Person(db.Model):
     young_adult_description = db.Column(db.Text, nullable=True)
     adult_life_description = db.Column(db.Text, nullable=True)
     late_life_description = db.Column(db.Text, nullable=True)
-    avatar_img = db.Column(db.String(255), nullable=True)
+    avatar_img = db.Column(db.String(10000), nullable=True)
     images = db.Column(JSON, nullable=True)
     @property
     def children(self):
