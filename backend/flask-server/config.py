@@ -11,4 +11,4 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.environ['SECRET_KEY']
