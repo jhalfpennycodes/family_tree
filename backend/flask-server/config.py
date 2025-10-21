@@ -1,6 +1,4 @@
 import os
-import secrets
-
 
 # Get the absolute path to the backend/flask-server directory
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
@@ -11,4 +9,6 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.environ['SECRET_KEY']
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    if not SECRET_KEY:
+        raise RuntimeError("SECRET_KEY not set in environment")

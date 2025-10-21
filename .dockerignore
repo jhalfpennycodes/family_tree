@@ -1,0 +1,8 @@
+node_modules
+frontend/node_modules
+backend/flask-server/__pycache__
+backend/flask-server/**/__pycache__
+backend/flask-server/db.sqlite3
+frontend/dist
+.git
+*.pyc

@@ -7,13 +7,14 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime, timedelta
 from werkzeug.exceptions import HTTPException
+import os
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # Optional
+app.config["JWT_SECRET_KEY"] = os.getenv('SECRET_KEY')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) 
 jwt = JWTManager(app)
 
 CORS(
