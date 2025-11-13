@@ -133,7 +133,7 @@ function ProfileSelectField({
         </select>
       ) : (
         <Link
-          to={`/profile/${profileData[field].id}`}
+          to={`/publicProfile/${profileData[field].id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <Box display="flex" alignItems="center">
@@ -238,7 +238,7 @@ function ProfileMultiSelectField({
             <Box key={index} display="flex" alignItems="center" mb={2}>
               <Box sx={{ width: 200 }}>
                 <Link
-                  to={`/profile/${person.id}`}
+                  to={`/publicProfile/${person.id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <Box display="flex" alignItems="center">
@@ -435,7 +435,7 @@ function PublicProfilePage() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetch(VITE_API_BASE + `/publicProfile/${id}`);
+        const response = await fetch(VITE_API_BASE + `publicProfile/${id}`);
         const json = await response.json();
         setProfileData(json);
       } catch (error) {

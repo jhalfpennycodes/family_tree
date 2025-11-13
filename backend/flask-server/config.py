@@ -9,6 +9,8 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    
     if not SECRET_KEY:
+        print(os.environ.get("SECRET_KEY"))
         raise RuntimeError("SECRET_KEY not set in environment")

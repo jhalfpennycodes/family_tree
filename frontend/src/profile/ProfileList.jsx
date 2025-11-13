@@ -63,7 +63,7 @@ function ProfilesList() {
   useEffect(() => {
     const getFamily = async () => {
       try {
-        const response = await fetch(VITE_API_BASE + `/listFamily`, {
+        const response = await fetch(VITE_API_BASE + `listFamily`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

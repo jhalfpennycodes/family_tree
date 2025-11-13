@@ -52,9 +52,8 @@ def get_public_tree(family_id):
             avatar_img = person.avatar_img
         else:
             avatar_image_file_path = person.avatar_img
-            f = open(avatar_image_file_path)
-            avatar_img = f.read()
-            
+            with open(avatar_image_file_path, 'r') as f:
+                avatar_img = f.read()
         nodes.append({
             'id': person.id,
             'type': 'avatar',
@@ -82,10 +81,6 @@ def get_public_tree(family_id):
                 'source': person.mother_id,
                 'target': person.id
             })
-        if not person.mother and not person.father:
-            parent_store.append(person.id)
-        if not person.children:
-            child_store.append(person.id)
 
     tree_data = [{
         'nodes': nodes,
@@ -107,12 +102,11 @@ def get_tree(family_id):
         if not person.avatar_img:
             avatar_img = None
         elif re.findall(pattern, person.avatar_img):
-            re.findall(pattern, person.avatar_img)
             avatar_img = person.avatar_img
         else:
             avatar_image_file_path = person.avatar_img
-            f = open(avatar_image_file_path)
-            avatar_img = f.read()
+            with open(avatar_image_file_path, 'r') as f:
+                avatar_img = f.read()
             
         nodes.append({
             'id': person.id,
@@ -206,12 +200,11 @@ def get_family_member(person_id):
     if not person.avatar_img:
         avatar_img = None
     elif re.findall(pattern, person.avatar_img):
-        re.findall(pattern, person.avatar_img)
         avatar_img = person.avatar_img
     else:
         avatar_image_file_path = person.avatar_img
-        f = open(avatar_image_file_path)
-        avatar_img = f.read()
+        with open(avatar_image_file_path, 'r') as f:
+            avatar_img = f.read()
 
     result.append({
         'id': person.id,

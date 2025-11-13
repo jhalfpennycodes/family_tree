@@ -12,7 +12,7 @@ import {
 import { useParams } from "react-router-dom";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
-import AvatarNode from "../graph/AvatarNode";
+import PublicAvatarNode from "./PublicAvatarNode";
 import AddPersonNode from "../graph/AddPersonNode";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
@@ -96,7 +96,7 @@ const getLayoutedElements = async (nodes, edges, options = {}) => {
   }
 };
 
-const nodeTypes = { avatar: AvatarNode, add: AddPersonNode };
+const nodeTypes = { avatar: PublicAvatarNode, add: AddPersonNode };
 
 function LayoutFlow() {
   const [graphIsLoading, setGraphIsLoading] = useState(true);

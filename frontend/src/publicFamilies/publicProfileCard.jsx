@@ -74,7 +74,7 @@ export default function PublicProfileCard(props) {
       >
         <CardHeader
           avatar={
-            <Link to={`/profile/${props.id}`}>
+            <Link to={`/publicProfile/${props.id}`}>
               <Avatar
                 sx={{
                   width: 50,
@@ -98,7 +98,7 @@ export default function PublicProfileCard(props) {
           }
           action={
             <React.Fragment>
-              <Link to={`/profile/${props.id}`}>
+              <Link to={`/publicProfile/${props.id}`}>
                 <IconButton>
                   <ContactPageIcon sx={{ color: "action.active" }} />
                 </IconButton>

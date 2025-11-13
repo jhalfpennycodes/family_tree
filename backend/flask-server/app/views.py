@@ -1,4 +1,4 @@
-from app import app, db, api
+from app import db, api
 from app.api import ListAllFamilyMembersResource, FamilyMemberProfileResource, Tree3Resource, SignInResource, SignUpResource, PublicListFamilyResource, PublicTree3Resource, PublicFamilyMemberResource, PostFamilyMemberResource
 
 

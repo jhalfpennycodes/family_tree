@@ -517,6 +517,7 @@ function AddProfileForm(props) {
       formData.gender &&
       formData.dob
     ) {
+      console.log(familyData);
       const response = await fetch(VITE_API_BASE + "profileAdd", {
         method: "POST",
         headers: {
